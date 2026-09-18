@@ -124,13 +124,10 @@ function tickCountdown() {
 function deadlineMarkup(c) {
   const status = statusOf(c);
   if (status === 'rolling') return `<div class="rolling-text">${icon('infinity')}상시 투고</div><div class="deadline-sub">일반 논문 기준</div>`;
-  if (!c.deadline) return `<div class="pending-text">${icon('hourglass')}확인 대기</div><div class="deadline-sub">공식 마감 미확인</div>`;
-  const days = daysUntil(c.deadline);
-  const calendarDays = Math.round((Date.parse(dateKey(c.deadline)) - Date.parse(dateKey(new Date().toISOString()))) / DAY);
-  const text = status === 'closed' ? '마감됨' : calendarDays === 0 ? (dateOnly(c.deadline) ? '오늘 · 시각 미정' : 'D-DAY') : `D-${Math.max(0, calendarDays)}`;
+  if (!c.deadline) return `<div class="pending-text">확인 대기</div>`;
   let sub = dateOnly(c.deadline) ? `${c.timezone ? `${c.timezone} 날짜 · ` : ''}시각·시간대 ${c.timezone ? '변환 없음' : '미발표'}` : `${parts(c.deadline).hour}:${parts(c.deadline).minute} ${zoneNames[state.timezone]}`;
   if (c.abstractDeadline && status !== 'closed') sub += ` · ${c.acronym === 'CVPR' ? '등록' : '초록'} ${isPast(c.abstractDeadline) ? '마감됨' : dateText(c.abstractDeadline).slice(5)}`;
-  return `<div class="deadline-main"><span class="deadline-date">${dateText(c.deadline)}</span><span class="deadline-status ${status === 'closed' ? 'closed' : days <= 14 ? 'soon' : 'open'}">${text}</span></div><div class="deadline-sub">${escapeHtml(sub)}</div>`;
+  return `<div class="deadline-main"><span class="deadline-date">${dateText(c.deadline)}</span>${status === 'closed' ? '<span class="deadline-status closed">마감됨</span>' : ''}</div><div class="deadline-sub">${escapeHtml(sub)}</div>`;
 }
 function acceptanceMarkup(c, detailed = false) {
   const history = (c.acceptanceHistory || []).filter(a => Number.isFinite(a.rate) && a.rate >= 0 && a.rate <= 100 && Number.isInteger(a.year)).slice().sort((a, b) => b.year - a.year);
