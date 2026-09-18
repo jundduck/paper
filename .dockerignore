@@ -1,0 +1,7 @@
+node_modules
+data/cache.json*
+tests
+artifacts
+.git
+*.log
+README.md
