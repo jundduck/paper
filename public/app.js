@@ -88,7 +88,7 @@ function filteredConferences() {
 function renderStats() {
   $('#nav-total').textContent = state.conferences.length;
   $('#nav-saved').textContent = state.conferences.filter(c => state.saved.has(c.id)).length;
-  Object.keys(categories).forEach(key => { $(`#count-${key}`).textContent = state.conferences.filter(c => c.category === key).length; });
+
   const today = parts(new Date().toISOString(), 'Asia/Seoul');
   $('#today-date').textContent = `${today.year}. ${today.month}. ${today.day}`;
   $('#today-weekday').textContent = new Intl.DateTimeFormat('ko-KR', { timeZone: 'Asia/Seoul', weekday: 'long' }).format(new Date());
@@ -141,7 +141,7 @@ function renderRows() {
   const rows = filteredConferences();
   $('#result-count').textContent = rows.length;
   $('#showing-count').textContent = `${state.conferences.length}개 학회·저널 중 ${rows.length}개 표시`;
-  $('#conference-rows').innerHTML = rows.map(c => `<tr>
+  $('#conference-rows').innerHTML = rows.map(c => `<tr data-area="${escapeHtml(c.category)}">
     <td><div class="venue-main"><button class="venue-link ${state.selectedId === c.id ? 'countdown-selected' : ''}" data-select="${escapeHtml(c.id)}" aria-pressed="${state.selectedId === c.id}" title="상단 카운트다운에 표시">${escapeHtml(c.acronym)}<span class="venue-year">${c.year || ''}</span></button><button class="venue-details" data-detail="${escapeHtml(c.id)}" aria-label="${escapeHtml(c.acronym)} 상세 일정">${icon('info')}</button>${c.type === 'journal' ? '<span class="venue-abbreviation">J</span>' : ''}</div><div class="venue-name" title="${escapeHtml(c.name)}">${escapeHtml(c.name)}</div></td>
     <td>${badge(c)}</td><td>${deadlineMarkup(c)}${sourceWarning(c) ? `<div class="deadline-sub warning">${sourceWarning(c)}</div>` : ''}</td>
     <td><div class="${c.startDate ? 'deadline-date' : 'pending-text'}">${periodText(c)}</div>${c.location ? `<div class="location">${icon('pin')}${escapeHtml(c.location)}</div>` : ''}</td>
@@ -273,7 +273,7 @@ document.addEventListener('click', event => {
   const detail = event.target.closest('[data-detail]'); if (detail) { showDetail(detail.dataset.detail); return; }
   const save = event.target.closest('[data-save]'); if (save) { toggleSaved(save.dataset.save); return; }
   const category = event.target.closest('[data-category]'); if (category) { state.category = category.dataset.category; renderRows(); return; }
-  const area = event.target.closest('[data-area]'); if (area) { state.category = area.dataset.area; state.nav = 'all'; renderRows(); return; }
+  const area = event.target.closest('button[data-area]'); if (area) { state.category = area.dataset.area; state.nav = 'all'; renderRows(); return; }
   const nav = event.target.closest('[data-nav]'); if (nav) { state.nav = nav.dataset.nav; state.view = state.nav === 'calendar' ? 'calendar' : 'list'; resetFilters(); return; }
   const view = event.target.closest('[data-view]'); if (view) { state.view = view.dataset.view; if (state.nav === 'calendar' && state.view === 'list') state.nav = 'all'; renderRows(); }
 });
@@ -284,7 +284,7 @@ $('#timezone').addEventListener('change', event => { state.timezone = event.targ
 $('#sort-deadline').addEventListener('click', () => { state.reverse = !state.reverse; $('#sort-deadline').closest('th').setAttribute('aria-sort', state.reverse ? 'descending' : 'ascending'); renderRows(); });
 $('#reset-filters').addEventListener('click', resetFilters);
 $('#refresh').addEventListener('click', requestRefresh);
-$('#source-guide').addEventListener('click', showSources);
+
 $('#footer-sources').addEventListener('click', showSources);
 $('#close-dialog').addEventListener('click', () => $('#detail-dialog').close());
 $('#detail-dialog').addEventListener('close', () => { if (dialogReturnFocus) $(dialogReturnFocus)?.focus({ preventScroll: true }); });
