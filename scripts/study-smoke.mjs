@@ -20,6 +20,7 @@ try{
  assert.ok(await js("document.querySelectorAll('.state').length>=50 && document.querySelector('#map-error').hidden"));
  assert.ok(await js("places.every(s=>projection([s.lon,s.lat])?.every(Number.isFinite))"));
  assert.equal(await js("document.querySelectorAll('.school-item.company').length"),12);
+ assert.ok(await js("[...document.querySelectorAll('.pin.cluster text')].every(el=>!/^\\d+$/.test(el.textContent) && el.textContent.length>0)"));
  await js("document.querySelector('[data-place=stanford]').click()");await sleep(700);
  assert.ok(await js("document.querySelector('#detail h2').textContent.includes('Stanford') && transform.k===5"));
  await js("document.querySelector('#save-school').click();document.querySelector('#saved').click()");
