@@ -85,6 +85,8 @@ try {
   check('Acceptance rate column follows event dates', await evaluate("document.querySelectorAll('thead th')[4].textContent"), '과거 Acceptance Rate');
   check('Every conference row has six columns', await evaluate("[...document.querySelectorAll('#conference-rows tr')].every(row => row.cells.length === 6)"));
   check('Published rates have source links and historical year', await evaluate("[...document.querySelectorAll('.acceptance-cell .acceptance-rate')].every(link => link.href.startsWith('https://') && /20\\d{2}/.test(link.parentElement.textContent)) && document.querySelectorAll('.acceptance-cell .acceptance-rate').length > 0"));
+  check('Every pending conference shows a sourced prior deadline', await evaluate("[...document.querySelectorAll('#conference-rows tr')].filter(row => row.querySelector('.pending-text')?.textContent.includes('확인 대기')).every(row => /^이전 20\\d{2} 회차 마감/.test(row.querySelector('.previous-deadline')?.textContent || '') && row.querySelector('.previous-deadline')?.href.startsWith('https://'))"));
+  check('Full conference names wrap without ellipsis', await evaluate("[...document.querySelectorAll('.venue-name')].every(name => getComputedStyle(name).whiteSpace === 'normal' && getComputedStyle(name).textOverflow === 'clip')"));
   check('English robotics heading', await evaluate("document.querySelector('h1').textContent === 'Robotics Conferences & Journals'"));
   check('Intro subtitle and top breadcrumb removed', await evaluate("document.querySelector('.intro p') === null && document.querySelector('.breadcrumb') === null"));
   check('Desktop has no page overflow', await evaluate('document.documentElement.scrollWidth <= innerWidth'));

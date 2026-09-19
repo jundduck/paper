@@ -72,3 +72,9 @@ dialog{background:#ffffff;color:#1e293b;border-color:#dce3ec;border-radius:10px;
 /* Slightly larger type for schedule scanning. */
 body{font-size:14px}.nav-item{font-size:13px}h1{font-size:30px}td{font-size:12px}.venue-link{font-size:15px}.venue-name,.deadline-sub,.location,.acceptance-meta{font-size:11px}.category-badge,.filter-chip,select,.view-switch button,.search-box input,.table-meta,.timezone-label select,th,.panel-footer{font-size:11px}.pending-text,.rolling-text,.acceptance-unknown{font-size:12px}
 @media(max-width:600px){.venue-link{font-size:16px}.venue-name,.deadline-sub,.location{font-size:10px}.category-badge,.filter-chip,.view-switch button,.search-box input,.table-meta,.timezone-label select,.panel-footer{font-size:10px}}
+
+.venue-name{max-width:none;overflow:visible;text-overflow:clip;white-space:normal;font-size:10px;line-height:1.45}
+.previous-deadline{display:flex;align-items:center;gap:3px;width:max-content;max-width:220px;margin-top:6px;color:#58749a;font-size:10px;line-height:1.45;white-space:normal}
+.previous-deadline strong{font-weight:650;color:#355b8d}.previous-deadline:hover{text-decoration:underline;color:#245cbd}.previous-deadline svg{width:11px;height:11px}
+.submission-value .previous-deadline{margin-top:7px;font-weight:400}
+@media(max-width:600px){.venue-name{font-size:9px}.previous-deadline{font-size:9px;max-width:100%}}

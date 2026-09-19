@@ -121,10 +121,17 @@ function tickCountdown() {
   const numbers = [Math.floor(seconds / 86400), Math.floor(seconds / 3600) % 24, Math.floor(seconds / 60) % 60, seconds % 60];
   $('#countdown').innerHTML = numbers.map((number, index) => `${index ? '<span class="countdown-sep">:</span>' : ''}<div class="countdown-part"><strong>${String(number).padStart(2, '0')}</strong><span>${['DAYS', 'HOURS', 'MINS', 'SECS'][index]}</span></div>`).join('');
 }
+function previousDeadlineMarkup(c) {
+  const previous = c.previousDeadline;
+  if (!previous || !Number.isInteger(previous.edition) || !/^\d{4}-\d{2}-\d{2}$/.test(previous.date || '')) return '';
+  const time = /^\d{2}:\d{2}$/.test(previous.time || '') ? ` ${previous.time}` : '';
+  const timezone = previous.timezone ? ` ${escapeHtml(previous.timezone)}` : '';
+  return `<a class="previous-deadline" href="${safeUrl(previous.sourceUrl)}" target="_blank" rel="noopener noreferrer" title="${escapeHtml(previous.sourceName || '직전 회차 공식 일정')}">이전 ${previous.edition} 회차 마감 · <strong>${escapeHtml(previous.date.replaceAll('-', '.'))}${time}${timezone}</strong>${icon('arrow-up-right')}</a>`;
+}
 function deadlineMarkup(c) {
   const status = statusOf(c);
   if (status === 'rolling') return `<div class="rolling-text">${icon('infinity')}상시 투고</div><div class="deadline-sub">일반 논문 기준</div>`;
-  if (!c.deadline) return `<div class="pending-text">확인 대기</div>`;
+  if (!c.deadline) return `<div class="pending-text">확인 대기</div>${previousDeadlineMarkup(c)}`;
   let sub = dateOnly(c.deadline) ? `${c.timezone ? `${c.timezone} 날짜 · ` : ''}시각·시간대 ${c.timezone ? '변환 없음' : '미발표'}` : `${parts(c.deadline).hour}:${parts(c.deadline).minute} ${zoneNames[state.timezone]}`;
   if (c.abstractDeadline && status !== 'closed') sub += ` · ${c.acronym === 'CVPR' ? '등록' : '초록'} ${isPast(c.abstractDeadline) ? '마감됨' : dateText(c.abstractDeadline).slice(5)}`;
   return `<div class="deadline-main"><span class="deadline-date">${dateText(c.deadline)}</span>${status === 'closed' ? '<span class="deadline-status closed">마감됨</span>' : ''}</div><div class="deadline-sub">${escapeHtml(sub)}</div>`;
@@ -181,7 +188,7 @@ function renderSync() {
   const checked = s.lastAttemptAt ? dateText(s.lastAttemptAt, true) : '';
   const statusText = STATIC_MODE && s.lastAttemptAt && Date.now() - Date.parse(s.lastAttemptAt) > 3 * 3600000 ? '정기 갱신 지연 · 마지막 확인값' : busy ? '공식 출처 확인 중' : s.status === 'error' ? '갱신 실패 · 저장된 일정 표시' : s.status === 'partial' ? '일부 출처 재확인 필요' : s.lastAttemptAt ? '출처 확인 완료' : '초기 확인 데이터';
   $('#sync-summary').textContent = `${statusText}${checked ? ` · ${checked}` : ''}`;
-  $('#sync-summary').title = `${s.message || ''}\n다음 갱신: ${s.nextSyncAt ? dateText(s.nextSyncAt, true) : STATIC_MODE ? '매시간 정기 실행 · 지연 가능' : '서버 시작 후 예약'}`;
+  $('#sync-summary').title = `${s.message || ''}\n다음 갱신: ${s.nextSyncAt ? dateText(s.nextSyncAt, true) : STATIC_MODE ? '30분 간격 예약 실행 · 지연 가능' : '서버 시작 후 예약'}`;
   if (busy && !refreshTimer) refreshTimer = setTimeout(() => { refreshTimer = null; fetchData(); }, 2500);
 }
 function renderAll() { renderStats(); renderNext(); renderRows(); renderSync(); }
@@ -192,7 +199,7 @@ function showDetail(id) {
   const sourceStatus = sourceWarning(c);
   const original = c.deadline && !dateOnly(c.deadline) ? `${c.deadline.replace('T', ' ').replace(/([+-]\d\d:\d\d|Z)$/, '')} ${c.timezone || ''}` : '';
   $('#dialog-content').innerHTML = `<div class="dialog-eyebrow">${c.type === 'journal' ? 'JOURNAL' : 'CONFERENCE'} DETAILS</div><h2 class="dialog-title" id="dialog-title">${escapeHtml(c.acronym)} ${c.year || ''}</h2><p class="dialog-subtitle">${escapeHtml(c.name)}</p><div class="dialog-badges">${badge(c)}<span class="category-badge">${c.type === 'journal' ? '상시 투고 저널' : `${c.year} 학회`}</span></div>
-  <dl class="detail-grid"><dt class="submission-label">Submission Deadline</dt><dd class="submission-value">${c.type === 'journal' ? '상시 투고 · 일반 논문' : escapeHtml(longDate(c.deadline))}${original ? `<small>원문: ${escapeHtml(original)}</small>` : ''}${dateOnly(c.deadline) ? `<small>${escapeHtml(c.timezone || '시간대 미발표')} · 날짜만 발표되어 시간대 변환을 하지 않습니다.</small>` : ''}</dd>
+  <dl class="detail-grid"><dt class="submission-label">Submission Deadline</dt><dd class="submission-value">${c.type === 'journal' ? '상시 투고 · 일반 논문' : escapeHtml(longDate(c.deadline))}${!c.deadline ? previousDeadlineMarkup(c) : ''}${original ? `<small>원문: ${escapeHtml(original)}</small>` : ''}${dateOnly(c.deadline) ? `<small>${escapeHtml(c.timezone || '시간대 미발표')} · 날짜만 발표되어 시간대 변환을 하지 않습니다.</small>` : ''}</dd>
   ${c.abstractDeadline ? `<dt>${c.acronym === 'CVPR' ? '논문 등록 마감' : '초록 제출 마감'}</dt><dd>${escapeHtml(longDate(c.abstractDeadline))}${isPast(c.abstractDeadline) && !isPast(c.deadline) ? '<small>사전 등록이 마감되었습니다. 기존 등록 논문의 본문 제출 여부를 공식 안내에서 확인하세요.</small>' : ''}</dd>` : ''}
   <dt>개최 일정</dt><dd>${periodText(c)}</dd><dt>장소</dt><dd>${escapeHtml(c.location || (c.type === 'journal' ? '해당 없음' : '발표 대기'))}</dd>
   <dt>과거 Acceptance Rate</dt><dd>${acceptanceMarkup(c, true)}</dd>
@@ -205,7 +212,7 @@ function showDetail(id) {
 }
 function showSources() {
   const s = state.sync;
-  $('#dialog-content').innerHTML = `<div class="dialog-eyebrow">A NOTE ON OUR DATA</div><h2 class="dialog-title" id="dialog-title">믿을 수 있는 일정의 기준</h2><div class="source-description"><p>공식 홈페이지와 논문 모집 공고를 우선합니다. 아직 확인되지 않은 마감일은 비워두고, 저널의 일반 투고는 상시 투고로 구분합니다.</p><p>공식 출처는 <strong>${Number(s.intervalMinutes) || 60}분 간격</strong>으로 확인합니다. 이 화면은 1분마다 공개된 결과를 불러옵니다. ${STATIC_MODE ? "화면 새로고침은 최신 공개 데이터를 다시 읽습니다. 예약 실행은 지연되거나 중단될 수 있습니다." : ""} 원문 변경 직후의 즉시 반영을 보장하지는 않습니다.</p><p>지원되는 형식의 제출 마감은 자동 반영합니다. 날짜를 안전하게 읽을 수 없는 페이지의 내용이 달라지면 <strong>재확인 필요</strong>로 표시합니다. 연결 실패 시에는 마지막 확인 일정을 유지합니다. 개최 일정과 출처의 연도 전환도 원문 재확인이 필요할 수 있습니다.</p><p>마감 시각·시간대가 명시된 경우에만 한국 시간·AoE·UTC로 변환합니다. 날짜만 발표된 일정은 원문의 날짜를 그대로 표시합니다. 캘린더 내보내기는 현재 일정의 사본이며 이후 변경은 다시 내려받아야 합니다.</p><p>마지막 시도: <strong>${s.lastAttemptAt ? dateText(s.lastAttemptAt, true) : '아직 없음'}</strong><br>다음 확인: <strong>${s.nextSyncAt ? dateText(s.nextSyncAt, true) : STATIC_MODE ? '매시간 정기 실행 · 지연 가능' : '서버에서 예약 중'}</strong><br>${escapeHtml(s.message || '')}</p></div><div class="source-list">${state.conferences.map(c => `<div class="source-row"><a href="${safeUrl(c.sourceUrl)}" target="_blank" rel="noopener noreferrer">${escapeHtml(c.acronym)} ${c.year || ''} ↗</a><span class="${sourceWarning(c) ? 'error' : ''}">${escapeHtml(sourceWarning(c) || (c.sourceCheckedAt ? '출처 접속 완료' : c.verifiedAt ? '초기 공식 자료 확인' : '확인 대기'))}</span></div>`).join('')}</div>`;
+  $('#dialog-content').innerHTML = `<div class="dialog-eyebrow">A NOTE ON OUR DATA</div><h2 class="dialog-title" id="dialog-title">믿을 수 있는 일정의 기준</h2><div class="source-description"><p>공식 홈페이지와 논문 모집 공고를 우선합니다. 아직 확인되지 않은 마감일은 비워두고, 저널의 일반 투고는 상시 투고로 구분합니다.</p><p>공식 출처는 <strong>${Number(s.intervalMinutes) || 60}분 간격</strong>으로 확인합니다. 이 화면은 1분마다 공개된 결과를 불러옵니다. ${STATIC_MODE ? "화면 새로고침은 최신 공개 데이터를 다시 읽습니다. 예약 실행은 지연되거나 중단될 수 있습니다." : ""} 원문 변경 직후의 즉시 반영을 보장하지는 않습니다.</p><p>지원되는 형식의 제출 마감은 자동 반영합니다. 날짜를 안전하게 읽을 수 없는 페이지의 내용이 달라지면 <strong>재확인 필요</strong>로 표시합니다. 연결 실패 시에는 마지막 확인 일정을 유지합니다. 개최 일정과 출처의 연도 전환도 원문 재확인이 필요할 수 있습니다.</p><p>마감 시각·시간대가 명시된 경우에만 한국 시간·AoE·UTC로 변환합니다. 날짜만 발표된 일정은 원문의 날짜를 그대로 표시합니다. 캘린더 내보내기는 현재 일정의 사본이며 이후 변경은 다시 내려받아야 합니다.</p><p>마지막 시도: <strong>${s.lastAttemptAt ? dateText(s.lastAttemptAt, true) : '아직 없음'}</strong><br>다음 확인: <strong>${s.nextSyncAt ? dateText(s.nextSyncAt, true) : STATIC_MODE ? '30분 간격 예약 실행 · 지연 가능' : '서버에서 예약 중'}</strong><br>${escapeHtml(s.message || '')}</p></div><div class="source-list">${state.conferences.map(c => `<div class="source-row"><a href="${safeUrl(c.sourceUrl)}" target="_blank" rel="noopener noreferrer">${escapeHtml(c.acronym)} ${c.year || ''} ↗</a><span class="${sourceWarning(c) ? 'error' : ''}">${escapeHtml(sourceWarning(c) || (c.sourceCheckedAt ? '출처 접속 완료' : c.verifiedAt ? '초기 공식 자료 확인' : '확인 대기'))}</span></div>`).join('')}</div>`;
   openDialog();
 }
 function toggleSaved(id) {
@@ -253,7 +260,7 @@ async function fetchData() {
   } finally { loading = false; }
 }
 async function requestRefresh() {
-  if (STATIC_MODE) { await fetchData(); showToast('공개된 최신 데이터를 불러왔습니다. 공식 출처는 매시간 정기 확인합니다.'); return; }
+  if (STATIC_MODE) { await fetchData(); showToast('공개된 최신 데이터를 불러왔습니다. 공식 출처는 30분 간격으로 확인합니다.'); return; }
   const button = $('#refresh'); button.disabled = true; button.classList.add('spinning');
   try {
     const response = await fetch('./api/refresh', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}', signal: AbortSignal.timeout(15000) });
@@ -286,6 +293,14 @@ $('#refresh').addEventListener('click', requestRefresh);
 $('#footer-sources').addEventListener('click', showSources);
 $('#close-dialog').addEventListener('click', () => $('#detail-dialog').close());
 $('#detail-dialog').addEventListener('close', () => { if (dialogReturnFocus) $(dialogReturnFocus)?.focus({ preventScroll: true }); });
+$('#detail-dialog').addEventListener('keydown', event => {
+  if (event.key !== 'Tab') return;
+  const focusable = [...$('#detail-dialog').querySelectorAll('a[href], button:not([disabled]), select:not([disabled]), input:not([disabled]), [tabindex]:not([tabindex="-1"])')].filter(element => element.getClientRects().length);
+  if (!focusable.length) return;
+  const first = focusable[0], last = focusable.at(-1);
+  if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
+  else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
+});
 $('#detail-dialog').addEventListener('click', event => { if (event.target === $('#detail-dialog')) { const rect = event.target.getBoundingClientRect(); if (event.clientX < rect.left || event.clientX > rect.right || event.clientY < rect.top || event.clientY > rect.bottom) event.target.close(); } });
 $('#calendar-prev').addEventListener('click', () => { const d = new Date(state.calendarYear, state.month - 1); state.calendarYear = d.getFullYear(); state.month = d.getMonth(); renderRows(); });
 $('#calendar-next').addEventListener('click', () => { const d = new Date(state.calendarYear, state.month + 1); state.calendarYear = d.getFullYear(); state.month = d.getMonth(); renderRows(); });

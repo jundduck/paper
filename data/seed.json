@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-09-19T08:56:10Z",
+  "updatedAt": "2026-09-19T17:53:08Z",
   "conferences": [
     {
       "id": "neurips-2027",
@@ -22,6 +22,15 @@
       "status": "pending",
       "verifiedAt": "2026-09-19T08:56:10Z",
       "notes": "공식 Future Meetings에는 2027년 유럽 개최만 안내되어 있습니다. 논문 마감과 개최일 발표를 기다리고 있습니다.",
+      "previousDeadline": {
+        "edition": 2026,
+        "date": "2026-05-06",
+        "time": null,
+        "timezone": "AoE",
+        "sourceUrl": "https://neurips.cc/Conferences/2026/Dates",
+        "sourceName": "NeurIPS 2026 공식 Dates",
+        "checkedAt": "2026-09-20"
+      },
       "acceptanceHistory": [
         {
           "year": 2025,
@@ -59,6 +68,15 @@
       "status": "pending",
       "verifiedAt": "2026-09-16T15:32:47Z",
       "notes": "공식 Future Meetings에는 2027년 남미 개최만 안내되어 있습니다. 제출 일정은 아직 확인되지 않았습니다.",
+      "previousDeadline": {
+        "edition": 2026,
+        "date": "2026-01-28",
+        "time": null,
+        "timezone": "AoE",
+        "sourceUrl": "https://icml.cc/Conferences/2026/CallForPapers",
+        "sourceName": "ICML 2026 공식 Call for Papers",
+        "checkedAt": "2026-09-20"
+      },
       "acceptanceHistory": [
         {
           "year": 2025,
@@ -96,6 +114,15 @@
       "status": "pending",
       "verifiedAt": "2026-09-16T15:32:47Z",
       "notes": "CVF가 개최 기간을 발표했습니다. 2027년 논문 제출 마감은 아직 확인되지 않았습니다.",
+      "previousDeadline": {
+        "edition": 2025,
+        "date": "2025-03-07",
+        "time": "23:59",
+        "timezone": "HST",
+        "sourceUrl": "https://iccv.thecvf.com/Conferences/2025/Dates",
+        "sourceName": "ICCV 2025 공식 Dates",
+        "checkedAt": "2026-09-20"
+      },
       "acceptanceHistory": [
         {
           "year": 2025,
@@ -131,8 +158,17 @@
       "endDate": null,
       "location": null,
       "status": "pending",
-      "verifiedAt": "2026-09-19T08:56:10Z",
+      "verifiedAt": "2026-09-19T17:53:08Z",
       "notes": "짝수 해에 열리는 학회입니다. 공식 홈페이지는 2026년 회차를 안내하고 있으며 2028년 제출·개최 일정은 미발표 상태입니다.",
+      "previousDeadline": {
+        "edition": 2026,
+        "date": "2026-03-05",
+        "time": "23:00",
+        "timezone": "CET",
+        "sourceUrl": "https://eccv.ecva.net/Conferences/2026/Dates",
+        "sourceName": "ECCV 2026 공식 Dates",
+        "checkedAt": "2026-09-20"
+      },
       "acceptanceHistory": [
         {
           "year": 2024,
@@ -207,6 +243,15 @@
       "status": "pending",
       "verifiedAt": "2026-09-17T04:53:35.563Z",
       "notes": "2028년 회차의 공식 제출 마감과 개최 일정 발표를 기다리고 있습니다.",
+      "previousDeadline": {
+        "edition": 2027,
+        "date": "2026-09-25",
+        "time": "23:59",
+        "timezone": "AoE",
+        "sourceUrl": "https://www.iclr.cc/Conferences/2027/CallForPapers",
+        "sourceName": "ICLR 2027 공식 Call for Papers",
+        "checkedAt": "2026-09-20"
+      },
       "acceptanceHistory": [
         {
           "year": 2025,
@@ -247,6 +292,15 @@
       "status": "pending",
       "verifiedAt": "2026-09-19T08:56:10Z",
       "notes": "공식 홈페이지는 2026년 회차를 안내하고 있습니다. 2027년 제출·개최 일정 발표를 기다리고 있습니다.",
+      "previousDeadline": {
+        "edition": 2026,
+        "date": "2026-05-28",
+        "time": "23:59",
+        "timezone": "AoE",
+        "sourceUrl": "https://2026.corl.org/contributions/instruction-for-authors",
+        "sourceName": "CoRL 2026 공식 Instructions for Authors",
+        "checkedAt": "2026-09-20"
+      },
       "acceptanceHistory": [],
       "acceptanceNotes": "신뢰할 수 있는 연도별 공개 채택률을 아직 확인하지 못했습니다."
     },
@@ -271,6 +325,15 @@
       "status": "pending",
       "verifiedAt": "2026-09-17T04:53:35.563Z",
       "notes": "2028년 회차의 공식 제출 마감과 개최 일정 발표를 기다리고 있습니다.",
+      "previousDeadline": {
+        "edition": 2027,
+        "date": "2026-07-28",
+        "time": "23:59",
+        "timezone": "AoE",
+        "sourceUrl": "https://aaai.org/conference/aaai/aaai-27/main-technical-track-call/",
+        "sourceName": "AAAI-27 공식 Main Technical Track Call",
+        "checkedAt": "2026-09-20"
+      },
       "acceptanceHistory": [
         {
           "year": 2026,
@@ -388,6 +451,15 @@
       "status": "pending",
       "verifiedAt": "2026-09-16T15:32:47Z",
       "notes": "2027년 개최 기간은 발표되었으나 초록·논문 제출 날짜는 공식 타임라인에 TBA로 표시되어 있습니다.",
+      "previousDeadline": {
+        "edition": 2026,
+        "date": "2026-01-30",
+        "time": "23:59",
+        "timezone": "AoE",
+        "sourceUrl": "https://roboticsconference.org/2026/information/cfp/",
+        "sourceName": "RSS 2026 공식 Call for Papers",
+        "checkedAt": "2026-09-20"
+      },
       "acceptanceHistory": [
         {
           "year": 2023,
@@ -558,6 +630,15 @@
       "status": "pending",
       "verifiedAt": "2026-09-19T08:56:10Z",
       "notes": "공식 시리즈 페이지는 2027년 9월 보스턴 개최로 안내합니다. 정확한 개최일과 해당 회차 제출 마감은 발표를 기다리고 있습니다.",
+      "previousDeadline": {
+        "edition": 2026,
+        "date": "2026-03-01",
+        "time": "23:59",
+        "timezone": "PT",
+        "sourceUrl": "https://ieee-itsc.org/2026/contributions/information-for-authors/",
+        "sourceName": "ITSC 2026 공식 Information for Authors",
+        "checkedAt": "2026-09-20"
+      },
       "acceptanceHistory": [],
       "acceptanceNotes": "신뢰할 수 있는 연도별 공개 채택률을 아직 확인하지 못했습니다."
     }

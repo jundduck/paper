@@ -4,7 +4,7 @@
 
 ## 공개 사이트
 
-GitHub Pages 정적 배포와 매시간 공식 출처 확인을 지원합니다. 배포 및 예약 실행 제한은 [DEPLOY.md](DEPLOY.md)를 참고하세요.
+GitHub Pages 정적 배포와 30분 간격 공식 출처 확인을 지원합니다. 배포 및 예약 실행 제한은 [DEPLOY.md](DEPLOY.md)를 참고하세요.
 
 ## 실행
 

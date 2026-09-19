@@ -7,7 +7,7 @@ const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const store = await new ConferenceStore({ seedPath: resolve(root, 'data/seed.json'), cachePath: resolve(root, 'data/cache.json') }).initialize();
 const snapshot = process.argv.includes('--offline') ? store.snapshot() : await store.refresh();
 snapshot.sync.nextSyncAt = null;
-snapshot.sync.intervalMinutes = 60;
+snapshot.sync.intervalMinutes = 30;
 const destination = resolve(root, 'dist');
 await mkdir(destination, { recursive: true });
 await cp(resolve(root, 'public'), destination, { recursive: true });
