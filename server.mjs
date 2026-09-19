@@ -43,7 +43,7 @@ export function createApp({ store, publicDir = resolve(ROOT, 'public'), refreshC
       if (!['GET', 'HEAD'].includes(req.method)) return json(res, 405, { error: '지원하지 않는 요청입니다.' }, { allow: 'GET, HEAD' });
       const decoded = decodeURIComponent(url.pathname);
       if (decoded.includes('\0') || decoded.includes('\\')) return json(res, 400, { error: '잘못된 경로입니다.' });
-      const requested = resolve(publicDir, `.${decoded === '/' ? '/index.html' : decoded}`);
+      const requested = resolve(publicDir, `.${decoded.endsWith('/') ? decoded + 'index.html' : decoded}`);
       const canonicalRoot = await realpath(publicDir);
       const canonicalFile = await realpath(requested);
       if (!canonicalFile.startsWith(`${canonicalRoot}${sep}`)) return json(res, 403, { error: '허용되지 않은 경로입니다.' });
