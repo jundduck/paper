@@ -116,7 +116,7 @@ function tickCountdown() {
   if (!state.next || !$('#countdown')) return;
   const value = state.next.value;
   if (isPast(value)) { $('#countdown').innerHTML = '<span class="countdown-status">마감됨</span>'; return; }
-  if (dateOnly(value)) { $('#countdown').innerHTML = `<div class="countdown-part"><strong>${daysUntil(value)}</strong><span>DAYS · 날짜 기준</span></div>`; return; }
+  if (dateOnly(value)) { $('#countdown').innerHTML = `<span class="countdown-status">D-${Math.max(0, daysUntil(value))}</span>`; return; }
   const seconds = Math.max(0, Math.floor((Date.parse(value) - Date.now()) / 1000));
   const numbers = [Math.floor(seconds / 86400), Math.floor(seconds / 3600) % 24, Math.floor(seconds / 60) % 60, seconds % 60];
   $('#countdown').innerHTML = numbers.map((number, index) => `${index ? '<span class="countdown-sep">:</span>' : ''}<div class="countdown-part"><strong>${String(number).padStart(2, '0')}</strong><span>${['DAYS', 'HOURS', 'MINS', 'SECS'][index]}</span></div>`).join('');
@@ -154,7 +154,6 @@ function renderRows() {
   document.querySelectorAll('[data-view]').forEach(el => { const active = el.dataset.view === state.view; el.classList.toggle('active', active); el.setAttribute('aria-pressed', active); });
   const title = state.nav === 'saved' ? '저장한 학회' : state.view === 'calendar' ? '일정 캘린더' : '전체 일정';
   $('#schedule-title').textContent = title;
-  $('#breadcrumb-current').textContent = title;
 }
 function renderCalendar(rows) {
   const year = state.calendarYear, month = state.month;

@@ -85,7 +85,8 @@ try {
   check('Acceptance rate column follows event dates', await evaluate("document.querySelectorAll('thead th')[4].textContent"), '과거 Acceptance Rate');
   check('Every conference row has six columns', await evaluate("[...document.querySelectorAll('#conference-rows tr')].every(row => row.cells.length === 6)"));
   check('Published rates have source links and historical year', await evaluate("[...document.querySelectorAll('.acceptance-cell .acceptance-rate')].every(link => link.href.startsWith('https://') && /20\\d{2}/.test(link.parentElement.textContent)) && document.querySelectorAll('.acceptance-cell .acceptance-rate').length > 0"));
-  check('Korean document encoding', await evaluate("document.querySelector('h1').textContent.includes('학회·저널 일정')"));
+  check('English robotics heading', await evaluate("document.querySelector('h1').textContent === 'Robotics Conferences & Journals'"));
+  check('Intro subtitle and top breadcrumb removed', await evaluate("document.querySelector('.intro p') === null && document.querySelector('.breadcrumb') === null"));
   check('Desktop has no page overflow', await evaluate('document.documentElement.scrollWidth <= innerWidth'));
   check('No automatic nearest-conference selection', await evaluate("document.querySelector('#next-deadline').textContent.includes('학회를 선택하세요')"));
   await click('[data-select="cvpr-2027"]');
