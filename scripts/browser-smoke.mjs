@@ -103,6 +103,8 @@ try {
   check('Unannounced selection stays selected', await evaluate("document.querySelector('.next-title').textContent.includes('NeurIPS') && document.querySelector('#countdown').textContent.includes('일정 미정')"));
   await click('[data-select="ra-l"]');
   check('Rolling journal selection has no invented countdown', await evaluate("document.querySelector('#countdown').textContent.includes('상시 투고')"));
+  await click('[data-select="icra-2028"]');
+  check('Date-only countdown uses one D-day label', await evaluate("/^D-\\d+$/.test(document.querySelector('#countdown').textContent.trim()) && !document.querySelector('#countdown').textContent.includes('DAYS')"));
   await click('[data-select="aaai-2028"]');
   check('Next edition waits for its own official deadline', await evaluate("document.querySelector('.next-title').textContent.includes('AAAI') && document.querySelector('#countdown').textContent.includes('일정 미정')"));
   await evaluate("localStorage.setItem('papertrail-selected', JSON.stringify('iclr-2027')); localStorage.setItem('papertrail-saved', JSON.stringify(['iclr-2027']))");
@@ -195,7 +197,7 @@ try {
   check('Network error explains retained data', await evaluate("document.querySelector('#load-error').textContent.includes('마지막으로 불러온')"));
   await cdp('Page.reload');
   await until(() => evaluate("document.querySelector('#load-error') && !document.querySelector('#load-error').hidden"), 'initial-load error message');
-  check('Initial load failure is visible', await evaluate("document.querySelector('#load-error').textContent.includes('일정을 불러오지 못했어요')"));
+  check('Initial load failure is visible', await evaluate("document.querySelector('#load-error').textContent.includes('불러오지 못했습니다')"));
   await cdp('Fetch.disable'); intentionallyFailing = false;
   await cdp('Page.reload'); await loaded(); check('Recovered API hides error banner', await evaluate("document.querySelector('#load-error').hidden"));
   check('No browser console, runtime, or resource errors during normal use', baselineErrors, []);

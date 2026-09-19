@@ -11,7 +11,12 @@ snapshot.sync.intervalMinutes = 60;
 const destination = resolve(root, 'dist');
 await mkdir(destination, { recursive: true });
 await cp(resolve(root, 'public'), destination, { recursive: true });
-const html = (await readFile(resolve(destination, 'index.html'), 'utf8')).replace('<head>', '<head>\n  <meta name="paper-mode" content="static">').replace('./api/calendar.ics', './calendar.ics');
+const assetVersion = encodeURIComponent(snapshot.updatedAt || Date.now());
+const html = (await readFile(resolve(destination, 'index.html'), 'utf8'))
+  .replace('<head>', '<head>\n  <meta name="paper-mode" content="static">')
+  .replace('./api/calendar.ics', './calendar.ics')
+  .replace('./styles.css', `./styles.css?v=${assetVersion}`)
+  .replace('./app.js', `./app.js?v=${assetVersion}`);
 await writeFile(resolve(destination, 'index.html'), html);
 await writeFile(resolve(destination, 'data.json'), JSON.stringify(snapshot));
 await writeFile(resolve(destination, 'calendar.ics'), createCalendar(snapshot.conferences));

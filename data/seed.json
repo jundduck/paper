@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-09-17T04:53:35.563Z",
+  "updatedAt": "2026-09-19T08:56:10Z",
   "conferences": [
     {
       "id": "neurips-2027",
@@ -20,7 +20,7 @@
       "endDate": null,
       "location": "유럽 · 도시 미정",
       "status": "pending",
-      "verifiedAt": "2026-09-16T15:32:47Z",
+      "verifiedAt": "2026-09-19T08:56:10Z",
       "notes": "공식 Future Meetings에는 2027년 유럽 개최만 안내되어 있습니다. 논문 마감과 개최일 발표를 기다리고 있습니다.",
       "acceptanceHistory": [
         {
@@ -131,7 +131,7 @@
       "endDate": null,
       "location": null,
       "status": "pending",
-      "verifiedAt": "2026-09-16T15:32:47Z",
+      "verifiedAt": "2026-09-19T08:56:10Z",
       "notes": "짝수 해에 열리는 학회입니다. 공식 홈페이지는 2026년 회차를 안내하고 있으며 2028년 제출·개최 일정은 미발표 상태입니다.",
       "acceptanceHistory": [
         {
@@ -245,7 +245,7 @@
       "endDate": null,
       "location": null,
       "status": "pending",
-      "verifiedAt": "2026-09-16T15:32:47Z",
+      "verifiedAt": "2026-09-19T08:56:10Z",
       "notes": "공식 홈페이지는 2026년 회차를 안내하고 있습니다. 2027년 제출·개최 일정 발표를 기다리고 있습니다.",
       "acceptanceHistory": [],
       "acceptanceNotes": "신뢰할 수 있는 연도별 공개 채택률을 아직 확인하지 못했습니다."
@@ -309,7 +309,7 @@
       "endDate": "2028-05-19",
       "location": "멕시코 과달라하라 · EXPO Guadalajara",
       "status": "announced",
-      "verifiedAt": "2026-09-17T04:53:35.563Z",
+      "verifiedAt": "2026-09-19T08:56:10Z",
       "notes": "IEEE RAS 공식 일정 기준입니다. 제출 마감은 2027년 8월 16일이며, 마감 시각과 시간대는 미발표입니다.",
       "acceptanceHistory": [
         {
@@ -349,7 +349,7 @@
       "endDate": "2027-10-01",
       "location": "이탈리아 피렌체 · Fortezza da Basso",
       "status": "announced",
-      "verifiedAt": "2026-09-16T15:32:47Z",
+      "verifiedAt": "2026-09-19T08:56:10Z",
       "notes": "IEEE RAS 공식 일정에 3월 1일로 발표되어 있습니다. 마감 시각·시간대는 해당 공지에 없어 날짜만 표시합니다.",
       "acceptanceHistory": [
         {
@@ -495,7 +495,7 @@
       "endDate": null,
       "location": null,
       "status": "rolling",
-      "verifiedAt": "2026-09-17T04:53:35.563Z",
+      "verifiedAt": "2026-09-19T08:56:10Z",
       "notes": "공식 일반 논문 투고 공고의 변경을 확인합니다. 일반 투고는 상시이며 특집호는 별도 마감이 적용될 수 있습니다.",
       "acceptanceHistory": [],
       "acceptanceNotes": "일반 투고 저널의 연도별 공개 채택률을 확인하지 못했습니다."
@@ -519,7 +519,7 @@
       "endDate": "2027-06-18",
       "location": "호주 퍼스",
       "status": "announced",
-      "verifiedAt": "2026-09-17T04:26:33.778Z",
+      "verifiedAt": "2026-09-19T08:56:10Z",
       "notes": "공식 2027 홈페이지 원문에서 제출 마감 2026년 11월 15일을 확인했습니다. 과거 회차의 차기 안내보다 현재 회차 공지를 우선합니다. 마감 시각과 시간대는 미발표이며, 개최 기간은 공식 안내 PDF 기준입니다.",
       "acceptanceHistory": [
         {
@@ -556,7 +556,7 @@
       "endDate": null,
       "location": "미국 보스턴",
       "status": "pending",
-      "verifiedAt": "2026-09-16T15:32:47Z",
+      "verifiedAt": "2026-09-19T08:56:10Z",
       "notes": "공식 시리즈 페이지는 2027년 9월 보스턴 개최로 안내합니다. 정확한 개최일과 해당 회차 제출 마감은 발표를 기다리고 있습니다.",
       "acceptanceHistory": [],
       "acceptanceNotes": "신뢰할 수 있는 연도별 공개 채택률을 아직 확인하지 못했습니다."

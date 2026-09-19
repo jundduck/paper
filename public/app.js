@@ -244,9 +244,11 @@ async function fetchData() {
     $('#load-error').hidden = true;
     renderAll();
   } catch (error) {
-    $('#load-error').textContent = state.loaded ? '서버 연결을 확인할 수 없습니다. 마지막으로 불러온 일정을 표시합니다. 잠시 후 새로고침해 주세요.' : '일정을 불러오지 못했어요. 서버가 실행 중인지 확인하고 새로고침해 주세요.';
+    $('#load-error').textContent = STATIC_MODE
+      ? (state.loaded ? '최신 공개 데이터를 불러오지 못했습니다. 마지막으로 불러온 일정을 표시합니다.' : '공개된 일정 데이터를 불러오지 못했습니다. 잠시 후 새로고침해 주세요.')
+      : (state.loaded ? '서버 연결을 확인할 수 없습니다. 마지막으로 불러온 일정을 표시합니다. 잠시 후 새로고침해 주세요.' : '일정을 불러오지 못했어요. 서버가 실행 중인지 확인하고 새로고침해 주세요.');
     $('#load-error').hidden = false;
-    $('#sync-summary').textContent = '서버 연결 실패';
+    $('#sync-summary').textContent = STATIC_MODE ? '데이터 연결 실패' : '서버 연결 실패';
     if (!state.loaded) { $('#conference-rows').innerHTML = ''; $('#next-deadline').innerHTML = '<div class="next-empty">서버에 연결하면 가까운 마감일을 보여드릴게요.</div>'; }
   } finally { loading = false; }
 }
