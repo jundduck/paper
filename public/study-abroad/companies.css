@@ -1,0 +1,13 @@
+.kind-tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;background:#f4f7fb;padding:4px;border-radius:8px;margin:-7px 0 12px}
+.kind-tabs button{border:0;background:transparent;color:#7a889b;font-size:10px;padding:7px 3px}
+.kind-tabs button.active{background:white;color:#2563eb;box-shadow:0 1px 4px #28436612}
+.kind-tabs b{font-size:9px;font-weight:500;opacity:.7}
+.school-item.company.selected{background:#fff3e8}
+.school-item.company .monogram{background:#fff8f0;color:#c66613;border-color:#f5ddc6}
+.school-item.company.selected .monogram{background:#e47718;color:white;border-color:#e47718}
+.orange{background:#e47718}
+.pin.company circle{fill:#e47718;filter:drop-shadow(0 1px 2px #e4771830)}
+.pin.cluster circle{fill:#55677e}
+.pin.company.selected circle{fill:#b65308;stroke:#ffd2a8}
+.pin.company text{fill:#9d5110}
+@media(max-width:650px){.kind-tabs{margin-top:0}.legend{gap:8px}}
