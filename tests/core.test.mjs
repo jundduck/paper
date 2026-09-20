@@ -43,9 +43,16 @@ test('ICRA extension, AAAI preceding dates, and IROS reversed table labels parse
   const aaai = parseConference('<h1>AAAI-27</h1><p>July 21, 2026</p><p>Abstracts due at 11:59 PM UTC-12</p><p>July 28, 2026</p><p>Full papers due at 11:59 PM UTC-12</p>', conference({ acronym: 'AAAI' }));
   assert.equal(aaai.patch.deadline, '2026-07-28T23:59:00-12:00');
   assert.equal(aaai.patch.abstractDeadline, '2026-07-21T23:59:00-12:00');
-  const iros = parseConference('<h1>2027 IEEE/RSJ IROS</h1><table><tr><td>Mar 1, 2027</td><td>Paper submission deadline: IROS</td></tr></table>', conference({ acronym: 'IROS' }));
+  const iros = parseConference('<h1>2027 IEEE/RSJ IROS</h1><p>September 26, 2027 @ 12:00 am - October 1, 2027 @ 11:59 pm</p><table><tr><td>Mar 1, 2027</td><td>Paper submission deadline: IROS</td></tr></table>', conference({ acronym: 'IROS' }));
   assert.equal(iros.patch.deadline, '2027-03-01');
   assert.equal(iros.patch.deadlinePrecision, 'date');
+  assert.equal(iros.patch.startDate, '2027-09-26');
+  assert.equal(iros.patch.endDate, '2027-10-01');
+  const itsc = parseConference('<h1>IEEE ITSC 2027</h1><p>September 21 – 24, 2027</p><p>Submission deadline for Regular & Special Session papers: March 1, 2027</p><p>Notification of Acceptance: May 1, 2027</p>', conference({ acronym: 'ITSC' }));
+  assert.equal(itsc.patch.deadline, '2027-03-01');
+  assert.equal(itsc.patch.notificationDate, '2027-05-01');
+  assert.equal(itsc.patch.startDate, '2027-09-21');
+  assert.equal(itsc.patch.endDate, '2027-09-24');
 });
 
 test('CVPR conference range includes workshops and exact official deadline instant', () => {
@@ -129,6 +136,43 @@ test('unparsed source changes require review and do not claim date verification'
   const restarted = await new ConferenceStore(options).initialize();
   await restarted.refresh();
   assert.equal(restarted.conferences[0].syncStatus, 'review', 'A network failure and restart must not erase a pending review');
+});
+
+
+test('scoped monitoring ignores unrelated page churn but detects relevant publication changes', async t => {
+  const dir = await mkdtemp(join(tmpdir(), 'paper-scoped-monitor-'));
+  t.after(() => rm(dir, { recursive: true, force: true }));
+  const seedPath = join(dir, 'seed.json');
+  const cachePath = join(dir, 'cache.json');
+  const row = conference({ id: 'eccv-2028', acronym: 'ECCV', year: 2028, deadline: null, status: 'pending', monitorScope: 'edition' });
+  await writeFile(seedPath, JSON.stringify({ conferences: [row] }));
+  let html = `<h1>ECCV 2026</h1><p>${'Conference information. '.repeat(8)}</p>`;
+  const store = await new ConferenceStore({ seedPath, cachePath, fetchImpl: async () => new Response(html, { headers: { 'content-type': 'text/html' } }) }).initialize();
+  await store.refresh();
+  html += '<footer>Unrelated navigation changed.</footer>';
+  await store.refresh();
+  assert.equal(store.conferences[0].syncStatus, 'ok');
+  html += '<p>ECCV 2028 dates will be announced here.</p>';
+  await store.refresh();
+  assert.equal(store.conferences[0].syncStatus, 'review');
+});
+
+test('rolling-journal monitoring ignores footer churn but detects submission policy changes', async t => {
+  const dir = await mkdtemp(join(tmpdir(), 'paper-journal-monitor-'));
+  t.after(() => rm(dir, { recursive: true, force: true }));
+  const seedPath = join(dir, 'seed.json');
+  const cachePath = join(dir, 'cache.json');
+  const row = conference({ id: 'tpami', acronym: 'TPAMI', name: 'IEEE Transactions on Pattern Analysis and Machine Intelligence', type: 'journal', year: null, deadline: null, status: 'rolling', monitorScope: 'rolling-journal' });
+  await writeFile(seedPath, JSON.stringify({ conferences: [row] }));
+  let html = `<h1>Call for Papers: ${row.name}</h1><p>TPAMI seeks submissions for upcoming issues.</p><h2>Submission Instructions</h2><p>${'General manuscript guidance. '.repeat(8)}</p>`;
+  const store = await new ConferenceStore({ seedPath, cachePath, fetchImpl: async () => new Response(html, { headers: { 'content-type': 'text/html' } }) }).initialize();
+  await store.refresh();
+  html += '<footer>Copyright year changed.</footer>';
+  await store.refresh();
+  assert.equal(store.conferences[0].syncStatus, 'ok');
+  html = html.replace('seeks submissions for upcoming issues', 'submissions are closed');
+  await store.refresh();
+  assert.equal(store.conferences[0].syncStatus, 'review');
 });
 
 test('partial parser cannot clear missing fields or silently verify unparsed event changes', async t => {

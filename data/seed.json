@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-09-21T00:00:00Z",
+  "updatedAt": "2026-09-20T15:23:51Z",
   "conferences": [
     {
       "id": "neurips-2027",
@@ -162,8 +162,8 @@
       "endDate": null,
       "location": null,
       "status": "pending",
-      "verifiedAt": "2026-09-19T17:53:08Z",
-      "notes": "짝수 해에 열리는 학회입니다. 공식 홈페이지는 2026년 회차를 안내하고 있으며 2028년 제출·개최 일정은 미발표 상태입니다.",
+      "verifiedAt": "2026-09-20T15:23:51Z",
+      "notes": "공식 홈페이지와 ECVA 자료를 재확인했으며 2028년 제출·개최 일정은 아직 발표되지 않았습니다. 2026년 일정은 과거 참고값으로만 표시합니다.",
       "previousDeadline": {
         "edition": 2026,
         "date": "2026-03-05",
@@ -187,7 +187,8 @@
           "notes": "출처에 발표된 비율을 사용합니다. 반올림·집계 시점에 따라 논문 수로 계산한 값과 소수점 차이가 있을 수 있습니다."
         }
       ],
-      "acceptanceNotes": "과거 공개 통계이며 현재 회차의 예상 채택률이 아닙니다. 마감 일정 자동 갱신과 별도로 확인한 자료입니다."
+      "acceptanceNotes": "과거 공개 통계이며 현재 회차의 예상 채택률이 아닙니다. 마감 일정 자동 갱신과 별도로 확인한 자료입니다.",
+      "monitorScope": "edition"
     },
     {
       "id": "cvpr-2027",
@@ -381,7 +382,7 @@
       "endDate": "2028-05-19",
       "location": "멕시코 과달라하라 · EXPO Guadalajara",
       "status": "announced",
-      "verifiedAt": "2026-09-19T08:56:10Z",
+      "verifiedAt": "2026-09-20T15:23:51Z",
       "notes": "IEEE RAS 공식 일정 기준입니다. 제출 마감은 2027년 8월 16일이며, 마감 시각과 시간대는 미발표입니다.",
       "acceptanceHistory": [
         {
@@ -422,7 +423,7 @@
       "endDate": "2027-10-01",
       "location": "이탈리아 피렌체 · Fortezza da Basso",
       "status": "announced",
-      "verifiedAt": "2026-09-19T08:56:10Z",
+      "verifiedAt": "2026-09-20T15:23:51Z",
       "notes": "IEEE RAS 공식 일정에 3월 1일로 발표되어 있습니다. 마감 시각·시간대는 해당 공지에 없어 날짜만 표시합니다.",
       "acceptanceHistory": [
         {
@@ -582,10 +583,11 @@
       "endDate": null,
       "location": null,
       "status": "rolling",
-      "verifiedAt": "2026-09-19T08:56:10Z",
+      "verifiedAt": "2026-09-20T15:23:51Z",
       "notes": "공식 일반 논문 투고 공고의 변경을 확인합니다. 일반 투고는 상시이며 특집호는 별도 마감이 적용될 수 있습니다.",
       "acceptanceHistory": [],
-      "acceptanceNotes": "일반 투고 저널의 연도별 공개 채택률을 확인하지 못했습니다."
+      "acceptanceNotes": "일반 투고 저널의 연도별 공개 채택률을 확인하지 못했습니다.",
+      "monitorScope": "rolling-journal"
     },
     {
       "id": "iv-2027",
@@ -605,10 +607,10 @@
       "deadlinePrecision": "date",
       "startDate": "2027-06-15",
       "endDate": "2027-06-18",
-      "location": "호주 퍼스",
+      "location": "호주 퍼스 · Crown Perth",
       "status": "announced",
-      "verifiedAt": "2026-09-19T08:56:10Z",
-      "notes": "공식 2027 홈페이지 원문에서 제출 마감 2026년 11월 15일을 확인했습니다. 과거 회차의 차기 안내보다 현재 회차 공지를 우선합니다. 마감 시각과 시간대는 미발표이며, 개최 기간은 공식 안내 PDF 기준입니다.",
+      "verifiedAt": "2026-09-20T15:23:51Z",
+      "notes": "공식 2027 홈페이지에서 제출 마감, 결과 발표일, 개최 기간과 Crown Perth 행사장을 재확인했습니다. 마감 시각과 시간대는 아직 발표되지 않았습니다.",
       "acceptanceHistory": [
         {
           "year": 2025,
@@ -627,26 +629,26 @@
     },
     {
       "id": "itsc-2027",
-      "notification": { "edition": 2026, "date": "2026-05-01", "sourceUrl": "https://ieee-itsc.org/2026/contact-us/", "sourceName": "IEEE ITSC 2026 공식 Important Dates · Notification of Acceptance", "checkedAt": "2026-09-21" },
+      "notification": { "edition": 2027, "date": "2027-05-01", "sourceUrl": "https://ieee-itsc.org/2027/", "sourceName": "IEEE ITSC 2027 공식 Important Dates · Notification of Acceptance", "checkedAt": "2026-09-21" },
       "acronym": "ITSC",
       "name": "IEEE International Conference on Intelligent Transportation Systems",
       "category": "driving",
       "type": "conference",
       "year": 2027,
-      "website": "https://ieee-itsc.org/",
-      "sourceUrl": "https://ieee-itsc.org/",
-      "sourceName": "IEEE ITSC 공식 개최 안내",
-      "deadline": null,
+      "website": "https://ieee-itsc.org/2027/",
+      "sourceUrl": "https://ieee-itsc.org/2027/",
+      "sourceName": "IEEE ITSC 2027 공식 홈페이지",
+      "deadline": "2027-03-01",
       "abstractDeadline": null,
       "deadlineLabel": "논문 제출",
       "timezone": null,
-      "deadlinePrecision": null,
-      "startDate": null,
-      "endDate": null,
+      "deadlinePrecision": "date",
+      "startDate": "2027-09-21",
+      "endDate": "2027-09-24",
       "location": "미국 보스턴",
-      "status": "pending",
-      "verifiedAt": "2026-09-19T08:56:10Z",
-      "notes": "공식 시리즈 페이지는 2027년 9월 보스턴 개최로 안내합니다. 정확한 개최일과 해당 회차 제출 마감은 발표를 기다리고 있습니다.",
+      "status": "announced",
+      "verifiedAt": "2026-09-20T15:23:51Z",
+      "notes": "공식 2027 홈페이지에서 논문 제출 마감, 결과 발표일과 개최 기간을 확인했습니다. 마감 시각과 시간대 및 구체 행사장은 아직 발표되지 않았습니다.",
       "previousDeadline": {
         "edition": 2026,
         "date": "2026-03-01",
