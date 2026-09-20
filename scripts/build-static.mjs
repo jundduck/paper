@@ -16,6 +16,7 @@ const html = (await readFile(resolve(destination, 'index.html'), 'utf8'))
   .replace('<head>', '<head>\n  <meta name="paper-mode" content="static">')
   .replace('./api/calendar.ics', './calendar.ics')
   .replace('./styles.css', `./styles.css?v=${assetVersion}`)
+  .replace('./notification.css', `./notification.css?v=${assetVersion}`)
   .replace('./app.js', `./app.js?v=${assetVersion}`);
 await writeFile(resolve(destination, 'index.html'), html);
 await writeFile(resolve(destination, 'data.json'), JSON.stringify(snapshot));

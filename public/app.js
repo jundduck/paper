@@ -128,6 +128,20 @@ function previousDeadlineMarkup(c) {
   const timezone = previous.timezone ? ` ${escapeHtml(previous.timezone)}` : '';
   return `<a class="previous-deadline" href="${safeUrl(previous.sourceUrl)}" target="_blank" rel="noopener noreferrer" title="${escapeHtml(previous.sourceName || '직전 회차 공식 일정')}">이전 ${previous.edition} 회차 마감 · <strong>${escapeHtml(previous.date.replaceAll('-', '.'))}${time}${timezone}</strong>${icon('arrow-up-right')}</a>`;
 }
+function notificationMarkup(c) {
+  const policy = c.notificationPolicy;
+  if (c.type === 'journal') {
+    if (!policy?.label || safeUrl(policy.sourceUrl) === '#') return '<div class="notification-row static">결정 통보 · 심사 후 개별 안내</div>';
+    return `<a class="notification-row" href="${safeUrl(policy.sourceUrl)}" target="_blank" rel="noopener noreferrer" title="${escapeHtml(policy.sourceName || '공식 심사 안내')}">결정 통보 · <strong>${escapeHtml(policy.label)}</strong>${icon('arrow-up-right')}</a>`;
+  }
+  const parsedDate = c.notificationDate;
+  if (parsedDate) return `<a class="notification-row" href="${safeUrl(c.sourceUrl)}" target="_blank" rel="noopener noreferrer" title="${escapeHtml(c.sourceName || '공식 결과 발표 일정')}">결과 발표 · <strong>${escapeHtml(dateText(parsedDate))}</strong>${icon('arrow-up-right')}</a>`;
+  const value = c.notification;
+  if (!value || !Number.isInteger(value.edition) || !/^\d{4}-\d{2}-\d{2}$/.test(value.date || '') || safeUrl(value.sourceUrl) === '#') return '<div class="notification-row static">결과 발표 · 확인 대기</div>';
+  const previous = value.edition !== c.year;
+  const label = previous ? `이전 ${value.edition} 회차 발표` : '결과 발표';
+  return `<a class="notification-row${previous ? ' previous' : ''}" href="${safeUrl(value.sourceUrl)}" target="_blank" rel="noopener noreferrer" title="${escapeHtml(value.sourceName || '공식 결과 발표 일정')}">${label} · <strong>${escapeHtml(value.date.replaceAll('-', '.'))}</strong>${icon('arrow-up-right')}</a>`;
+}
 function deadlineMarkup(c) {
   const status = statusOf(c);
   if (status === 'rolling') return `<div class="rolling-text">${icon('infinity')}상시 투고</div><div class="deadline-sub">일반 논문 기준</div>`;
@@ -147,7 +161,7 @@ function renderRows() {
   $('#showing-count').textContent = `${state.conferences.length}개 학회·저널 중 ${rows.length}개 표시`;
   $('#conference-rows').innerHTML = rows.map(c => `<tr data-area="${escapeHtml(c.category)}">
     <td><div class="venue-main"><button class="venue-link ${state.selectedId === c.id ? 'countdown-selected' : ''}" data-select="${escapeHtml(c.id)}" aria-pressed="${state.selectedId === c.id}" title="상단 카운트다운에 표시">${escapeHtml(c.acronym)}<span class="venue-year">${c.year || ''}</span></button><button class="venue-details" data-detail="${escapeHtml(c.id)}" aria-label="${escapeHtml(c.acronym)} 상세 일정">${icon('info')}</button>${c.type === 'journal' ? '<span class="venue-abbreviation">J</span>' : ''}</div><div class="venue-name" title="${escapeHtml(c.name)}">${escapeHtml(c.name)}</div></td>
-    <td>${badge(c)}</td><td>${deadlineMarkup(c)}${sourceWarning(c) ? `<div class="deadline-sub warning">${sourceWarning(c)}</div>` : ''}</td>
+    <td>${badge(c)}</td><td>${deadlineMarkup(c)}${notificationMarkup(c)}${sourceWarning(c) ? `<div class="deadline-sub warning">${sourceWarning(c)}</div>` : ''}</td>
     <td><div class="${c.startDate ? 'deadline-date' : 'pending-text'}">${periodText(c)}</div>${c.location ? `<div class="location">${icon('pin')}${escapeHtml(c.location)}</div>` : ''}</td>
     <td class="acceptance-cell">${acceptanceMarkup(c)}</td>
     <td><button class="save-button ${state.saved.has(c.id) ? 'saved' : ''}" data-save="${escapeHtml(c.id)}" aria-label="${escapeHtml(c.acronym)} ${state.saved.has(c.id) ? '저장 해제' : '저장'}" aria-pressed="${state.saved.has(c.id)}">${icon('bookmark')}</button></td></tr>`).join('');

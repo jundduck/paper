@@ -49,9 +49,10 @@ test('ICRA extension, AAAI preceding dates, and IROS reversed table labels parse
 });
 
 test('CVPR conference range includes workshops and exact official deadline instant', () => {
-  const html = `<h1>CVPR 2027 Meeting Dates</h1><table><tr><td>Workshops and Tutorials</td><td>June 20-21, 2027</td></tr><tr><td>Main Conference Sessions</td><td>June 22-25, 2027</td></tr></table><h2>Dates and Deadlines</h2><p>Submission Deadline Nov 16 '26 (Anywhere on Earth)<script>var submission_deadline_1 = "2026/11/17 11:59:59 UTC";</script></p>`;
+  const html = `<h1>CVPR 2027 Meeting Dates</h1><table><tr><td>Workshops and Tutorials</td><td>June 20-21, 2027</td></tr><tr><td>Main Conference Sessions</td><td>June 22-25, 2027</td></tr></table><h2>Dates and Deadlines</h2><p>Final Decisions |</p><p>Feb 25 '27 (Anywhere on Earth) |</p><p>Submission Deadline Nov 16 '26 (Anywhere on Earth)<script>var submission_deadline_1 = "2026/11/17 11:59:59 UTC";</script></p>`;
   const result = parseConference(html, conference({ acronym: 'CVPR' }));
   assert.equal(result.patch.deadline, '2026-11-16T23:59:59-12:00');
+  assert.equal(result.patch.notificationDate, '2027-02-25');
   assert.equal(result.patch.startDate, '2027-06-20');
   assert.equal(result.patch.endDate, '2027-06-25');
 });
@@ -68,6 +69,23 @@ test('calendar converts AoE to UTC, excludes rolling/unknown, uses exclusive all
   assert.match(ics, /LOCATION:Seoul\\, COEX\\; Hall/);
   assert.equal((ics.match(/BEGIN:VEVENT/g) ?? []).length, 2);
   assert.ok(ics.split('\r\n').every(line => Buffer.byteLength(line) <= 75));
+});
+
+test('every venue has sourced result timing without presenting prior editions as current', async () => {
+  const seed = JSON.parse(await readFile(new URL('../data/seed.json', import.meta.url), 'utf8'));
+  assert.equal(seed.conferences.length, 17);
+  for (const row of seed.conferences) {
+    if (row.type === 'journal') {
+      assert.ok(row.notificationPolicy?.label, `${row.id} needs a decision policy`);
+      assert.match(row.notificationPolicy.sourceUrl, /^https:\/\//);
+      continue;
+    }
+    assert.ok(Number.isInteger(row.notification?.edition), `${row.id} needs a notification edition`);
+    assert.match(row.notification.date, /^\d{4}-\d{2}-\d{2}$/);
+    assert.ok(!Number.isNaN(Date.parse(row.notification.date)));
+    assert.ok(row.notification.edition <= row.year, `${row.id} notification cannot use a future edition`);
+    assert.match(row.notification.sourceUrl, /^https:\/\//);
+  }
 });
 
 test('failed fetch preserves verified fields, concurrent refresh shares one run, cache persists', async t => {
