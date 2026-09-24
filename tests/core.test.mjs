@@ -80,7 +80,7 @@ test('calendar converts AoE to UTC, excludes rolling/unknown, uses exclusive all
 
 test('every venue has sourced result timing without presenting prior editions as current', async () => {
   const seed = JSON.parse(await readFile(new URL('../data/seed.json', import.meta.url), 'utf8'));
-  assert.equal(seed.conferences.length, 17);
+  assert.equal(seed.conferences.length, 19);
   for (const row of seed.conferences) {
     if (row.type === 'journal') {
       assert.ok(row.notificationPolicy?.label, `${row.id} needs a decision policy`);

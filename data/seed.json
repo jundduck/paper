@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-09-20T15:23:51Z",
+  "updatedAt": "2026-09-24T13:43:36Z",
   "conferences": [
     {
       "id": "neurips-2027",
@@ -487,6 +487,80 @@
         }
       ],
       "acceptanceNotes": "과거 공개 통계이며 현재 회차의 예상 채택률이 아닙니다. 마감 일정 자동 갱신과 별도로 확인한 자료입니다."
+    },
+    {
+      "id": "hri-2028",
+      "notification": { "edition": 2027, "date": "2026-11-30", "sourceUrl": "https://humanrobotinteraction.org/2027/submissions/", "sourceName": "HRI 2027 공식 Submissions · Decision Notification", "checkedAt": "2026-09-24" },
+      "acronym": "HRI",
+      "name": "ACM/IEEE International Conference on Human-Robot Interaction",
+      "category": "robotics",
+      "type": "conference",
+      "year": 2028,
+      "website": "https://humanrobotinteraction.org/",
+      "sourceUrl": "https://humanrobotinteraction.org/",
+      "sourceName": "HRI 공식 홈페이지",
+      "deadline": null,
+      "abstractDeadline": null,
+      "deadlineLabel": "논문 제출",
+      "timezone": null,
+      "deadlinePrecision": null,
+      "startDate": null,
+      "endDate": null,
+      "location": null,
+      "status": "pending",
+      "verifiedAt": "2026-09-24T00:00:00Z",
+      "notes": "HRI 2028 제출 및 개최 일정은 아직 공식 발표되지 않았습니다. 2027년 Full Paper 일정은 과거 참고값으로만 표시합니다.",
+      "previousDeadline": {
+        "edition": 2027,
+        "date": "2026-09-18",
+        "time": "23:59",
+        "timezone": "AoE",
+        "sourceUrl": "https://humanrobotinteraction.org/2027/submissions/",
+        "sourceName": "HRI 2027 공식 Submissions · Full Papers",
+        "checkedAt": "2026-09-24"
+      },
+      "acceptanceHistory": [
+        {
+          "year": 2025,
+          "rate": 25,
+          "track": "Full Papers",
+          "sourceUrl": "https://humanrobotinteraction.org/2025/full-papers/",
+          "sourceName": "HRI 2025 공식 Full Papers 통계",
+          "accepted": 100,
+          "submitted": 400,
+          "approximate": false,
+          "checkedAt": "2026-09-24",
+          "notes": "공식 페이지에 공개된 Full Paper 제출 400편, 채택 100편 기준입니다."
+        }
+      ],
+      "acceptanceNotes": "과거 Full Paper 공개 통계이며 현재 회차의 예상 채택률이 아닙니다.",
+      "monitorScope": "edition"
+    },
+    {
+      "id": "ro-man-2027",
+      "notification": { "edition": 2026, "date": "2026-05-29", "sourceUrl": "https://ro-man2026.org/papersubmission/", "sourceName": "RO-MAN 2026 공식 Paper Submission · Notification of Acceptance", "checkedAt": "2026-09-24" },
+      "acronym": "RO-MAN",
+      "name": "IEEE International Conference on Robot and Human Interactive Communication",
+      "category": "robotics",
+      "type": "conference",
+      "year": 2027,
+      "website": "https://ro-man2027.ca/",
+      "sourceUrl": "https://ras.papercept.net/conferences/scripts/start.pl",
+      "sourceName": "IEEE RAS PaperCept 공식 일정",
+      "deadline": "2027-03-07",
+      "abstractDeadline": null,
+      "deadlineLabel": "논문 제출",
+      "timezone": null,
+      "deadlinePrecision": "date",
+      "startDate": "2027-08-23",
+      "endDate": "2027-08-27",
+      "location": "캐나다 워털루 · University of Waterloo",
+      "status": "announced",
+      "verifiedAt": "2026-09-24T00:00:00Z",
+      "notes": "IEEE RAS PaperCept에 Full Manuscript 마감이 2027년 3월 7일로 발표되어 있습니다. 마감 시각·시간대와 2027년 합격 발표일은 아직 공개되지 않았습니다.",
+      "acceptanceHistory": [],
+      "acceptanceNotes": "공식 공개 통계를 확인하지 못했습니다.",
+      "monitorScope": "edition"
     },
     {
       "id": "ra-l",

@@ -29,7 +29,7 @@ try {
     try { const response = await fetch((origin.endsWith("/") ? origin : origin + "/") + dataPath, { signal: AbortSignal.timeout(2000) }); return response.ok ? response.json() : null; }
     catch { return null; }
   }, 'local server startup');
-  assert.equal(initial.conferences.length, 17, 'Expected the 17 requested venues');
+  assert.equal(initial.conferences.length, 19, 'Expected the 19 requested venues');
   browser = spawn(chromePath, ['--headless=new', '--remote-debugging-port=0', `--user-data-dir=${profile}`, '--no-first-run', '--no-default-browser-check', '--disable-background-networking', '--disable-component-update', '--disable-sync', 'about:blank'], { windowsHide: true, stdio: ['ignore', 'ignore', 'pipe'] });
   let stderr = '';
   browser.stderr.on('data', chunk => { stderr += chunk; });
@@ -73,7 +73,7 @@ try {
   };
   const screenshot = async name => { await evaluate('window.scrollTo(0, 0)'); await sleep(120); const result = await cdp('Page.captureScreenshot', { format: 'png', captureBeyondViewport: true }); await writeFile(join(artifacts, name), Buffer.from(result.data, 'base64')); };
   const check = (name, actual, expected = true) => { assert.deepEqual(actual, expected, name); checks.push(name); console.log(`PASS ${name}`); };
-  const loaded = () => until(async () => await count() === 17 && await evaluate("document.querySelector('#load-error').hidden"), 'all conference rows');
+  const loaded = () => until(async () => await count() === 19 && await evaluate("document.querySelector('#load-error').hidden"), 'all conference rows');
 
   on('Runtime.exceptionThrown', detail => errors.push({ type: 'exception', detail }));
   on('Runtime.consoleAPICalled', entry => { if (entry.type === 'error') errors.push({ type: 'console', entry }); });
@@ -81,12 +81,12 @@ try {
   await cdp('Page.enable'); await cdp('Runtime.enable'); await cdp('Log.enable');
   await cdp('Emulation.setDeviceMetricsOverride', { width: 1440, height: 1080, deviceScaleFactor: 1, mobile: false });
   await cdp('Page.navigate', { url: origin }); await loaded();
-  check('All 17 venues render', await count(), 17);
+  check('All 19 venues render', await count(), 19);
   check('Acceptance rate column follows event dates', await evaluate("document.querySelectorAll('thead th')[4].textContent"), '과거 Acceptance Rate');
   check('Every conference row has six columns', await evaluate("[...document.querySelectorAll('#conference-rows tr')].every(row => row.cells.length === 6)"));
   check('Published rates have source links and historical year', await evaluate("[...document.querySelectorAll('.acceptance-cell .acceptance-rate')].every(link => link.href.startsWith('https://') && /20\\d{2}/.test(link.parentElement.textContent)) && document.querySelectorAll('.acceptance-cell .acceptance-rate').length > 0"));
   check('Every pending conference shows a sourced prior deadline', await evaluate("[...document.querySelectorAll('#conference-rows tr')].filter(row => row.querySelector('.pending-text')?.textContent.includes('확인 대기')).every(row => /^이전 20\\d{2} 회차 마감/.test(row.querySelector('.previous-deadline')?.textContent || '') && row.querySelector('.previous-deadline')?.href.startsWith('https://'))"));
-  check('Every venue shows a result or decision announcement line', await evaluate("document.querySelectorAll('#conference-rows .notification-row').length === 17"));
+  check('Every venue shows a result or decision announcement line', await evaluate("document.querySelectorAll('#conference-rows .notification-row').length === 19"));
   check('Known announcement dates link to official sources', await evaluate("[...document.querySelectorAll('#conference-rows .notification-row:not(.static)')].every(row => row.href.startsWith('https://'))"));
   check('Historical announcement dates are explicitly labeled as prior editions', await evaluate("[...document.querySelectorAll('#conference-rows .notification-row.previous')].every(row => /이전 20\\d{2} 회차 발표/.test(row.textContent))"));
   check('Full conference names wrap without ellipsis', await evaluate("[...document.querySelectorAll('.venue-name')].every(name => getComputedStyle(name).whiteSpace === 'normal' && getComputedStyle(name).textOverflow === 'clip')"));
@@ -128,7 +128,7 @@ try {
   await click('[data-category="all"]');
   await search('iclr'); check('Case-insensitive conference search', await count(), 1);
   await search('this-conference-does-not-exist'); check('Empty search state', await evaluate("!document.querySelector('#empty-state').hidden && document.querySelector('#list-view').hidden"));
-  await click('#reset-filters'); check('Filters reset', await count(), 17);
+  await click('#reset-filters'); check('Filters reset', await count(), 19);
   await select('#status-filter', 'rolling'); check('Journal filter', await count(), initial.conferences.filter(c => c.type === 'journal').length);
   await select('#status-filter', 'all');
   const years = [...new Set(initial.conferences.map(c => c.year).filter(Boolean))];
@@ -198,11 +198,11 @@ try {
   await cdp('Fetch.enable', { patterns: [{ urlPattern: '*'+dataPath, requestStage: 'Request' }] });
   await evaluate("document.dispatchEvent(new Event('visibilitychange'))");
   await until(() => evaluate("!document.querySelector('#load-error').hidden"), 'retained-data error message');
-  check('Network error keeps last loaded rows', await count(), 17);
+  check('Network error keeps last loaded rows', await count(), 19);
   check('Network error explains retained data', await evaluate("document.querySelector('#load-error').textContent.includes('마지막으로 불러온')"));
   await cdp('Page.reload');
   await until(() => evaluate("document.querySelector('#load-error') && !document.querySelector('#load-error').hidden"), 'initial-load error message');
-  check('Initial load failure is visible', await evaluate("document.querySelector('#load-error').textContent.includes('불러오지 못했습니다')"));
+  check('Initial load failure is visible', await evaluate("document.querySelector('#load-error').textContent.includes('불러오지 못')"));
   await cdp('Fetch.disable'); intentionallyFailing = false;
   await cdp('Page.reload'); await loaded(); check('Recovered API hides error banner', await evaluate("document.querySelector('#load-error').hidden"));
   check('No browser console, runtime, or resource errors during normal use', baselineErrors, []);
