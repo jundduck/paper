@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-09-24T13:43:36Z",
+  "updatedAt": "2026-09-24T13:52:16Z",
   "conferences": [
     {
       "id": "neurips-2027",
@@ -21,7 +21,7 @@
       "endDate": null,
       "location": "유럽 · 도시 미정",
       "status": "pending",
-      "verifiedAt": "2026-09-19T08:56:10Z",
+      "verifiedAt": "2026-09-24T13:52:16Z",
       "notes": "공식 Future Meetings에는 2027년 유럽 개최만 안내되어 있습니다. 논문 마감과 개최일 발표를 기다리고 있습니다.",
       "previousDeadline": {
         "edition": 2026,
@@ -46,7 +46,8 @@
           "notes": "출처에 발표된 비율을 사용합니다. 반올림·집계 시점에 따라 논문 수로 계산한 값과 소수점 차이가 있을 수 있습니다."
         }
       ],
-      "acceptanceNotes": "과거 공개 통계이며 현재 회차의 예상 채택률이 아닙니다. 마감 일정 자동 갱신과 별도로 확인한 자료입니다."
+      "acceptanceNotes": "과거 공개 통계이며 현재 회차의 예상 채택률이 아닙니다. 마감 일정 자동 갱신과 별도로 확인한 자료입니다.",
+      "monitorScope": "year-line"
     },
     {
       "id": "icml-2027",
