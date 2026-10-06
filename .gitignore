@@ -8,3 +8,7 @@ artifacts/
 *.log
 
 dist/
+
+.wrangler/
+.dev.vars
+.dev.vars.*
