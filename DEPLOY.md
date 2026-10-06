@@ -13,19 +13,19 @@
 https://docs.github.com/en/pages/getting-started-with-github-pages/what-is-github-pages
 https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows#schedule
 
-## Cloudflare Pages (연결 준비)
+## Cloudflare Pages
 
-- 저장소: jundduck/paper. 프로젝트 예정 이름: papertrail-robotics.
+- 저장소: jundduck/paper. 프로젝트 이름: papertrail-robotics. 공개 주소: https://papertrail-robotics.pages.dev/
 - 계정 이메일 인증 후 최초 생성: `npx --yes wrangler@4.147.0 pages project create papertrail-robotics --production-branch main --force`.
 - 공식 자료를 새로 수집: `npm run build:static`.
-- 최초 배포: `npx --yes wrangler@4.147.0 pages deploy dist --project-name=papertrail-robotics --branch=main --force`.
-- `--force`는 Wrangler의 Workers 자동 전환 대신 Pages에 배포하기 위한 옵션입니다.
+- 최초 배포: `npx --yes wrangler@4.147.0 pages deploy dist --project-name=papertrail-robotics --branch=main`.
+- `--force`는 최초 프로젝트 생성 시에만 사용합니다. 생성된 Pages 프로젝트의 배포에는 사용하지 않습니다.
 - GitHub Repository Actions secret: `CLOUDFLARE_API_TOKEN` (해당 계정의 Cloudflare Pages Edit 권한).
-- GitHub Repository Actions variable: `CLOUDFLARE_ACCOUNT_ID`.
+- 계정 ID는 워크플로에 설정돼 있습니다. 다른 계정으로 이전할 때만 `CLOUDFLARE_ACCOUNT_ID` variable을 설정합니다.
 - 선택 variable: `CLOUDFLARE_PROJECT_NAME` (기본 papertrail-robotics).
-- 토큰을 먼저 저장하고 account ID variable을 마지막에 설정합니다. account ID가 없으면 Cloudflare 단계는 건너뜁니다.
+- `CLOUDFLARE_API_TOKEN` secret이 없으면 Cloudflare 단계는 건너뜁니다. 토큰은 배포 단계에서만 사용합니다.
 - 기존 Publish Paper 워크플로에서 생성한 동일한 dist를 Cloudflare에 배포합니다. push, 수동 실행, 정기 갱신 모두 적용됩니다.
 - 토큰과 비밀번호를 저장소나 채팅에 기록하지 마세요.
-- 현재 상태: 로그인 완료, 이메일 인증 대기. Cloudflare 공개 주소 및 GitHub 자동 배포 연결은 아직 완료되지 않았습니다.
+- 최초 공개 배포 및 공개 사이트 브라우저 검사 57개 완료. GitHub 자동 배포는 CLOUDFLARE_API_TOKEN secret 설정 후 활성화됩니다.
 
 https://developers.cloudflare.com/pages/how-to/use-direct-upload-with-continuous-integration/
