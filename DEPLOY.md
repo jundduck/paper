@@ -15,14 +15,14 @@ https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-t
 
 ## Cloudflare Pages
 
-- 저장소: jundduck/paper. 프로젝트 이름: papertrail-robotics. 공개 주소: https://papertrail-robotics.pages.dev/
-- 계정 이메일 인증 후 최초 생성: `npx --yes wrangler@4.147.0 pages project create papertrail-robotics --production-branch main --force`.
+- 저장소: jundduck/paper. 프로젝트 이름: jundduck-paper. 공개 주소: https://jundduck-paper.pages.dev/
+- 계정 이메일 인증 후 최초 생성: `npx --yes wrangler@4.147.0 pages project create jundduck-paper --production-branch main --force`.
 - 공식 자료를 새로 수집: `npm run build:static`.
-- 최초 배포: `npx --yes wrangler@4.147.0 pages deploy dist --project-name=papertrail-robotics --branch=main`.
+- 최초 배포: `npx --yes wrangler@4.147.0 pages deploy dist --project-name=jundduck-paper --branch=main`.
 - `--force`는 최초 프로젝트 생성 시에만 사용합니다. 생성된 Pages 프로젝트의 배포에는 사용하지 않습니다.
 - GitHub Repository Actions secret: `CLOUDFLARE_API_TOKEN` (해당 계정의 Cloudflare Pages Edit 권한).
 - 계정 ID는 워크플로에 설정돼 있습니다. 다른 계정으로 이전할 때만 `CLOUDFLARE_ACCOUNT_ID` variable을 설정합니다.
-- 선택 variable: `CLOUDFLARE_PROJECT_NAME` (기본 papertrail-robotics).
+- 선택 variable: `CLOUDFLARE_PROJECT_NAME` (기본 jundduck-paper).
 - `CLOUDFLARE_API_TOKEN` secret이 없으면 Cloudflare 단계는 건너뜁니다. 토큰은 배포 단계에서만 사용합니다.
 - 기존 Publish Paper 워크플로에서 생성한 동일한 dist를 Cloudflare에 배포합니다. push, 수동 실행, 정기 갱신 모두 적용됩니다.
 - 토큰과 비밀번호를 저장소나 채팅에 기록하지 마세요.
