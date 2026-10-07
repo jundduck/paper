@@ -81,7 +81,7 @@ function card(e) {
   const when = e.estimate ? Number(e.date.slice(5,7)) + '월 예상' : e.date.slice(5).replace('-', '.') + (e.end && e.end !== e.date ? '–' + e.end.slice(5).replace('-', '.') : '');
   const on = marked.has(e.id);
   const status = (e.estimate ? '예상' : '공식') + (on ? ' · 표시함' : '');
-  return '<a class="rm-event rm-' + e.kind + (e.estimate ? ' rm-estimate' : '') + (on ? ' rm-marked' : '') + '" data-id="' + escape(e.id) + '" href="' + url(e.source) + '" target="_blank" rel="noopener noreferrer" title="' + escape(e.estimate ? e.basis : '공식 일정 · 날짜는 KST 기준, 날짜만 발표된 경우 원문 날짜') + '"><span class="rm-event-head"><strong>' + escape(e.acronym) + ' <small>' + e.year + '</small></strong><span class="rm-status">' + status + '</span></span><span class="rm-when">' + when + '</span><span class="rm-detail">' + escape(e.label) + '</span></a>';
+  return '<a class="rm-event rm-' + e.kind + (e.estimate ? ' rm-estimate' : '') + (on ? ' rm-marked' : '') + '" data-id="' + escape(e.id) + '" href="' + url(e.source) + '" target="_blank" rel="noopener noreferrer" title="' + escape(e.label + ' · ' + (e.estimate ? e.basis : '공식 일정 · 날짜는 KST 기준, 날짜만 발표된 경우 원문 날짜')) + '"><span class="rm-event-head"><strong>' + escape(e.acronym) + ' <small>' + e.year + '</small></strong><span class="rm-status">' + status + '</span></span><span class="rm-when">' + when + '</span></a>';
 }
 function phase(y,m) {
   if (y === 2026 || y === 2027 && m <= 2) return '연구 인턴';
