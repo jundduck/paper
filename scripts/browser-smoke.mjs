@@ -178,12 +178,33 @@ try {
   check('Actual ICS download has calendar and events', ics.startsWith('BEGIN:VCALENDAR') && ics.includes('BEGIN:VEVENT') && ics.includes('END:VCALENDAR'));
   await writeFile(join(artifacts, 'downloaded-calendar.ics'), ics);
 
+
+  check('Roadmap renders four year panels', await evaluate("document.querySelectorAll('.rm-year').length"), 4);
+  check('Roadmap has 29 months through Feb 2029', await evaluate("document.querySelectorAll('.rm-month').length"), 29);
+  check('Roadmap has three event lanes per year', await evaluate("document.querySelectorAll('.rm-year .rm-row:not(.rm-months)').length"), 12);
+  check('Roadmap Korean heading renders', await evaluate("document.querySelector('#roadmap-title').textContent"), '논문 제출부터 학회 발표까지');
+  check('RSS conference presentation is included', await evaluate("[...document.querySelectorAll('.rm-event.rm-talk')].some(e=>e.textContent.includes('RSS')&&e.textContent.includes('2027'))"));
+  await click('#roadmap-confirmed');
+  check('Confirmed-only hides all estimates', await evaluate("document.querySelectorAll('.rm-estimate').length"), 0);
+  await click('#roadmap-confirmed');
+  await click('[data-rm-category="driving"]');
+  check('Roadmap field filter works', await evaluate("[...document.querySelectorAll('.rm-event-head strong')].every(e=>/^(IV|ITSC) /.test(e.textContent))"));
+  await click('[data-rm-category="all"]');
+  await evaluate("document.querySelector('#roadmap-year').value='2028';document.querySelector('#roadmap-year').dispatchEvent(new Event('change'))");
+  check('Roadmap year filter works', await evaluate("document.querySelectorAll('.rm-year').length"), 1);
+  check('PhD application period included', await evaluate("document.querySelector('.rm-application').textContent.includes('Fall 2029')"));
+  await evaluate("document.querySelector('#roadmap-year').value='all';document.querySelector('#roadmap-year').dispatchEvent(new Event('change'));document.querySelector('#research-roadmap').scrollIntoView()");
+  await screenshot('roadmap-desktop.png');
+
   await cdp('Emulation.setDeviceMetricsOverride', { width: 390, height: 844, deviceScaleFactor: 1, mobile: true });
   await evaluate('window.scrollTo(0, 0)');
   check('Mobile has no page overflow', await evaluate('document.documentElement.scrollWidth <= innerWidth'));
   check('Mobile deadlines are visible without horizontal scrolling', await evaluate("(() => { const r = document.querySelector('#conference-rows tr td:nth-child(3)').getBoundingClientRect(); return r.left >= 0 && r.right <= innerWidth; })()"));
   check('Mobile acceptance rate fits card', await evaluate("(() => { const r = document.querySelector('.acceptance-cell').getBoundingClientRect(); return r.width > 0 && r.left >= 0 && r.right <= innerWidth; })()"));
   await screenshot('mobile.png');
+  await evaluate("document.querySelector('#research-roadmap').scrollIntoView()");
+  check('Roadmap scrolls within mobile page', await evaluate("(() => {const e=document.querySelectorAll('.rm-scroll')[1];e.scrollLeft=400;return e.scrollLeft>0 && document.documentElement.scrollWidth<=innerWidth;})()"));
+  await screenshot('roadmap-mobile.png');
   await click('[data-nav="saved"]'); check('Mobile saved navigation works', await count(), 1);
   await click('[data-nav="all"]');
   await click(`.venue-details[data-detail="${first.id}"]`);

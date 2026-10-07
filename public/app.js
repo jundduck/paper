@@ -1,3 +1,4 @@
+import { renderRoadmap } from './roadmap.js';
 const STATIC_MODE = document.querySelector('meta[name="paper-mode"]')?.content === "static";
 const paths = {
   grid: '<rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/>',
@@ -100,7 +101,7 @@ function renderNext() {
     $('#next-deadline').innerHTML = '<div class="next-empty">카운트다운을 표시할 학회를 선택하세요.<p>아래 목록의 학회명을 누르면 선택한 항목에 밑줄이 표시됩니다.</p></div>';
     return;
   }
-  const description = c.deadline ? dateText(c.deadline, true) + (dateOnly(c.deadline) ? ' · 시각 미발표' : '') : c.type === 'journal' ? '일반 논문 투고 기준' : '공식 제출 일정 발표 대기';
+  const description = c.deadline ? (c.deadlineShortLabel ? `${c.deadlineLabel} · ` : '') + dateText(c.deadline, true) + (dateOnly(c.deadline) ? ' · 시각 미발표' : '') : c.type === 'journal' ? '일반 논문 투고 기준' : '공식 제출 일정 발표 대기';
   $('#next-deadline').innerHTML = `<div><div class="next-eyebrow"><i class="status-dot"></i>SELECTED CONFERENCE</div><div class="next-title"><strong>${escapeHtml(c.acronym)} ${c.year || ''}</strong><span>Submission Deadline</span></div><div class="next-description">${escapeHtml(description)}${sourceWarning(c) ? ' · 원문 재확인 필요' : ''}</div></div><div class="countdown" id="countdown" aria-label="선택한 학회의 마감 상태">${!c.deadline ? `<span class="countdown-status">${c.type === 'journal' ? '상시 투고' : '일정 미정'}</span>` : ''}</div><button class="next-link" data-detail="${escapeHtml(c.id)}"><span class="link-text">일정 확인</span>${icon('arrow-up-right')}</button>`;
   tickCountdown();
 }
@@ -148,7 +149,9 @@ function deadlineMarkup(c) {
   if (!c.deadline) return `<div class="pending-text">확인 대기</div>${previousDeadlineMarkup(c)}`;
   let sub = dateOnly(c.deadline) ? `${c.timezone ? `${c.timezone} 날짜 · ` : ''}시각·시간대 ${c.timezone ? '변환 없음' : '미발표'}` : `${parts(c.deadline).hour}:${parts(c.deadline).minute} ${zoneNames[state.timezone]}`;
   if (c.abstractDeadline && status !== 'closed') sub += ` · ${c.acronym === 'CVPR' ? '등록' : '초록'} ${isPast(c.abstractDeadline) ? '마감됨' : dateText(c.abstractDeadline).slice(5)}`;
-  return `<div class="deadline-main"><span class="deadline-date">${dateText(c.deadline)}</span>${status === 'closed' ? '<span class="deadline-status closed">마감됨</span>' : ''}</div><div class="deadline-sub">${escapeHtml(sub)}</div>`;
+  if (c.deadlineShortLabel) sub += ` · ${c.deadlineLabel}`;
+  const finalPaper = c.finalPaperDeadline ? `<div class="deadline-sub">2단계 최종 논문 · ${escapeHtml(dateText(c.finalPaperDeadline, true))} · 초청 대상</div>` : '';
+  return `<div class="deadline-main"><span class="deadline-date">${dateText(c.deadline)}</span>${status === 'closed' ? '<span class="deadline-status closed">마감됨</span>' : ''}</div><div class="deadline-sub">${escapeHtml(sub)}</div>${finalPaper}`;
 }
 function acceptanceMarkup(c, detailed = false) {
   const history = (c.acceptanceHistory || []).filter(a => Number.isFinite(a.rate) && a.rate >= 0 && a.rate <= 100 && Number.isInteger(a.year)).slice().sort((a, b) => b.year - a.year);
@@ -183,7 +186,8 @@ function renderCalendar(rows) {
   const dayCount = new Date(year, month + 1, 0).getDate();
   const cellCount = Math.ceil((firstWeekday + dayCount) / 7) * 7;
   const milestones = rows.flatMap(c => [
-    ...(c.deadline ? [{ c, date: dateKey(c.deadline), type: 'paper', label: '본문' }] : []),
+    ...(c.deadline ? [{ c, date: dateKey(c.deadline), type: 'paper', label: c.deadlineShortLabel || '본문' }] : []),
+    ...(c.finalPaperDeadline ? [{ c, date: dateKey(c.finalPaperDeadline), type: 'paper', label: '최종 논문 · 초청' }] : []),
     ...(c.abstractDeadline ? [{ c, date: dateKey(c.abstractDeadline), type: 'abstract', label: c.acronym === 'CVPR' ? '등록' : '초록' }] : []),
     ...(c.startDate ? [{ c, date: c.startDate, type: 'start', label: '개최' }] : []),
   ]);
@@ -205,7 +209,7 @@ function renderSync() {
   $('#sync-summary').title = `${s.message || ''}\n다음 갱신: ${s.nextSyncAt ? dateText(s.nextSyncAt, true) : STATIC_MODE ? '30분 간격 예약 실행 · 지연 가능' : '서버 시작 후 예약'}`;
   if (busy && !refreshTimer) refreshTimer = setTimeout(() => { refreshTimer = null; fetchData(); }, 2500);
 }
-function renderAll() { renderStats(); renderNext(); renderRows(); renderSync(); }
+function renderAll() { renderStats(); renderNext(); renderRows(); renderSync(); renderRoadmap(state.conferences); }
 
 function showDetail(id) {
   const c = state.conferences.find(c => c.id === id);
@@ -215,6 +219,7 @@ function showDetail(id) {
   $('#dialog-content').innerHTML = `<div class="dialog-eyebrow">${c.type === 'journal' ? 'JOURNAL' : 'CONFERENCE'} DETAILS</div><h2 class="dialog-title" id="dialog-title">${escapeHtml(c.acronym)} ${c.year || ''}</h2><p class="dialog-subtitle">${escapeHtml(c.name)}</p><div class="dialog-badges">${badge(c)}<span class="category-badge">${c.type === 'journal' ? '상시 투고 저널' : `${c.year} 학회`}</span></div>
   <dl class="detail-grid"><dt class="submission-label">Submission Deadline</dt><dd class="submission-value">${c.type === 'journal' ? '상시 투고 · 일반 논문' : escapeHtml(longDate(c.deadline))}${!c.deadline ? previousDeadlineMarkup(c) : ''}${original ? `<small>원문: ${escapeHtml(original)}</small>` : ''}${dateOnly(c.deadline) ? `<small>${escapeHtml(c.timezone || '시간대 미발표')} · 날짜만 발표되어 시간대 변환을 하지 않습니다.</small>` : ''}</dd>
   ${c.abstractDeadline ? `<dt>${c.acronym === 'CVPR' ? '논문 등록 마감' : '초록 제출 마감'}</dt><dd>${escapeHtml(longDate(c.abstractDeadline))}${isPast(c.abstractDeadline) && !isPast(c.deadline) ? '<small>사전 등록이 마감되었습니다. 기존 등록 논문의 본문 제출 여부를 공식 안내에서 확인하세요.</small>' : ''}</dd>` : ''}
+  ${c.finalPaperDeadline ? `<dt>2단계 최종 논문</dt><dd>${escapeHtml(longDate(c.finalPaperDeadline))}<small>1단계 제출 후 초청받은 논문만 제출할 수 있습니다.</small></dd>` : ''}
   <dt>개최 일정</dt><dd>${periodText(c)}</dd><dt>장소</dt><dd>${escapeHtml(c.location || (c.type === 'journal' ? '해당 없음' : '발표 대기'))}</dd>
   <dt>과거 Acceptance Rate</dt><dd>${acceptanceMarkup(c, true)}</dd>
   <dt>갱신 방식</dt><dd>${c.syncMode === 'automatic' ? '공식 날짜 자동 반영' : c.syncMode === 'monitor' ? '공식 페이지 변경 감지' : '초기 자료 · 출처 접속 확인 대기'}<small>${c.syncMode === 'monitor' ? '변경 시 재확인 표시 · 날짜는 원문 검토 후 반영합니다.' : '안전하게 해석할 수 있는 일정 항목만 자동 반영합니다.'}</small></dd>

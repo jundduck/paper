@@ -1,0 +1,106 @@
+// Planning estimates stay separate from the verified conference schedule.
+const FIRST = '2026-10', LAST = '2029-02';
+const lanes = { deadline: ['Submission Deadline', '논문 제출 마감'], decision: ['합격 결과', 'Acceptance notification'], talk: ['학회 발표', '개최 기간 · 개별 발표일은 추후 확인'] };
+const patterns = {
+  NeurIPS: [[0,5],[0,9],[0,12]], ICML: [[0,1],[0,5],[0,7]],
+  ICCV: [[0,3],[0,6],[0,10]], ECCV: [[0,3],[0,6],[0,9]],
+  CVPR: [[-1,11],[0,2],[0,6]], ICLR: [[-1,9],[-1,12],[0,4]],
+  CoRL: [[0,5],[0,9],[0,10]], AAAI: [[-1,7],[-1,11],[0,2]],
+  ICRA: [[-1,9],[0,1],[0,5]], IROS: [[0,3],[0,6],[0,9]],
+  RSS: [[-1,12],[0,4],[0,7]], HRI: [[-1,9],[-1,11],[0,3]],
+  'RO-MAN': [[0,3],[0,5],[0,8]], IV: [[-1,11],[0,1],[0,6]], ITSC: [[0,3],[0,5],[0,9]]
+};
+const escape = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const url = value => { try { const u = new URL(value); return u.protocol === 'https:' ? escape(u.href) : '#'; } catch { return '#'; } };
+const month = (year, n) => year + '-' + String(n).padStart(2, '0');
+const inRange = date => date && date.slice(0,7) >= FIRST && date.slice(0,7) <= LAST;
+function kst(date) {
+  if (!date || !Number.isFinite(Date.parse(date))) return null;
+  if (date.length === 10) return date;
+  return new Intl.DateTimeFormat('sv-SE', {timeZone:'Asia/Seoul',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date(date));
+}
+export function buildRoadmap(conferences) {
+  const events = [];
+  for (const c of conferences) {
+    if (c.type === 'journal' || !patterns[c.acronym]) continue;
+    for (let year = 2027; year <= 2029; year++) {
+      if (c.acronym === 'ICCV' && year % 2 === 0 || c.acronym === 'ECCV' && year % 2 !== 0) continue;
+      // Do not invent new submissions for an edition whose first deadline already passed.
+      const same = Number(c.year) === year;
+      const history = c.previousDeadline;
+      let first = same && c.deadline ? kst(c.deadline) : null;
+      if (!first && c.deadline) first = month(year + Number(c.deadline.slice(0,4)) - Number(c.year), Number(c.deadline.slice(5,7)));
+      if (!first && history?.date) first = month(year + Number(history.date.slice(0,4)) - history.edition, Number(history.date.slice(5,7)));
+      if (!first) first = month(year + patterns[c.acronym][0][0], patterns[c.acronym][0][1]);
+      if (first.slice(0,7) < FIRST) continue;
+      for (const [i, kind] of Object.keys(lanes).entries()) {
+        let date = null, end = null, source = c.sourceUrl || c.website, basis = '최근 회차의 개최 월을 참고한 계획용 예상';
+        let label = kind === 'deadline' ? '본문 제출' : kind === 'decision' ? '최종 결과' : '학회 개최';
+        if (same) {
+          if (kind === 'deadline') { date = kst(c.deadline); label = c.deadlineLabel || label; }
+          if (kind === 'decision') { date = kst(c.notificationDate || (c.notification?.edition === year ? c.notification.date : null)); source = c.notificationDate ? c.sourceUrl : c.notification?.sourceUrl || source; }
+          if (kind === 'talk') { date = kst(c.startDate); end = kst(c.endDate); }
+        }
+        // RAS currently has conflicting ICRA 2028 deadline records; keep this tentative.
+        const conflict = c.acronym === 'ICRA' && year === 2028 && kind === 'deadline';
+        let estimate = !date || conflict;
+        if (estimate) {
+          let ref = kind === 'deadline' ? (c.deadline ? {date:c.deadline, edition:c.year, sourceUrl:c.sourceUrl} : history) : kind === 'decision' ? (c.notificationDate ? {date:c.notificationDate,edition:c.year,sourceUrl:c.sourceUrl} : c.notification) : (c.startDate ? {date:c.startDate,edition:c.year,sourceUrl:c.sourceUrl} : null);
+          if (ref?.date && ref.edition) {
+            date = month(year + Number(ref.date.slice(0,4)) - Number(ref.edition), Number(ref.date.slice(5,7)));
+            basis = ref.edition + '년 회차의 공식 일정 기준 · 차기 회차 미확정'; source = ref.sourceUrl || source;
+          } else date = month(year + patterns[c.acronym][i][0], patterns[c.acronym][i][1]);
+          end = null;
+          if (conflict) { date = year - 1 + '-08'; label = '8–9월 · 공식 자료 상충'; basis = 'IEEE RAS 행사 기록에 8/16과 9/15가 혼재하여 확정 마감으로 사용하지 않습니다.'; }
+        }
+        if (c.acronym === 'RSS' && kind === 'deadline') label = '1차 · 확장 초록';
+        if (inRange(date)) events.push({acronym:c.acronym,year,kind,date,end,estimate,label,source,basis,category:c.category});
+      }
+      if (c.acronym === 'RSS') {
+        const final = same && c.finalPaperDeadline ? kst(c.finalPaperDeadline) : null;
+        const date = final || (year === 2027 ? '2027-04-17' : month(year,4));
+        if (inRange(date)) events.push({acronym:c.acronym,year,kind:'deadline',date,estimate:!final && year !== 2027,label:'2차 · 초청자만 최종 논문',source:c.sourceUrl,basis:'RSS 2027의 2단계 심사 일정 기준 · 4월 신규 투고 불가',category:c.category});
+      }
+    }
+  }
+  return events.sort((a,b) => a.date.localeCompare(b.date) || a.acronym.localeCompare(b.acronym));
+}
+let data = [], category = 'all', selectedYear = 'all', confirmedOnly = false, mounted = false;
+function card(e) {
+  const when = e.estimate ? Number(e.date.slice(5,7)) + '월 예상' : e.date.slice(5).replace('-', '.') + (e.end && e.end !== e.date ? '–' + e.end.slice(5).replace('-', '.') : '');
+  const status = e.estimate ? '예상' : '공식';
+  return '<a class="rm-event rm-' + e.kind + (e.estimate ? ' rm-estimate' : '') + '" href="' + url(e.source) + '" target="_blank" rel="noopener noreferrer" title="' + escape(e.estimate ? e.basis : '공식 일정 · 날짜는 KST 기준, 날짜만 발표된 경우 원문 날짜') + '"><span class="rm-event-head"><strong>' + escape(e.acronym) + ' <small>' + e.year + '</small></strong><span class="rm-status">' + status + '</span></span><span class="rm-when">' + when + '</span><span class="rm-detail">' + escape(e.label) + '</span></a>';
+}
+function phase(y,m) {
+  if (y === 2026 || y === 2027 && m <= 2) return '연구 인턴';
+  if (y === 2027) return m < 9 ? '석사 1학기' : '석사 2학기';
+  if (y === 2028) return m < 3 ? '석사 2학기' : m < 9 ? '석사 3학기' : '석사 4학기';
+  return '석사 종료 후';
+}
+function draw() {
+  const events = buildRoadmap(data).filter(e => (category === 'all' || e.category === category) && (!confirmedOnly || !e.estimate));
+  const years = [2026,2027,2028,2029].filter(y => selectedYear === 'all' || String(y) === selectedYear);
+  const today = new Intl.DateTimeFormat('sv-SE',{timeZone:'Asia/Seoul',year:'numeric',month:'2-digit'}).format(new Date());
+  document.querySelector('#roadmap-years').innerHTML = years.map(y => {
+    const months = Array.from({length:y === 2026 ? 3 : y === 2029 ? 2 : 12}, (_,i) => y === 2026 ? i + 10 : i + 1);
+    const count = events.filter(e => Number(e.date.slice(0,4)) === y).length;
+    const cells = months.map(m => '<div class="rm-month' + (month(y,m) === today ? ' rm-current' : '') + '"><strong>' + m + '월</strong><span>' + phase(y,m) + '</span></div>').join('');
+    const rows = Object.entries(lanes).map(([kind,[name,subtitle]]) => '<div class="rm-row"><div class="rm-label rm-' + kind + '"><i></i><strong>' + name + '</strong><small>' + subtitle + '</small></div>' + months.map(m => '<div class="rm-cell' + (month(y,m) === today ? ' rm-current' : '') + '">' + events.filter(e => e.kind === kind && e.date.slice(0,7) === month(y,m)).map(card).join('') + '</div>').join('') + '</div>').join('');
+    const admissions = y === 2028 ? '<div class="rm-application"><span>PhD 원서접수</span><p><b>Spring 2029</b> 8–10월 예상 · 모집 학교만 <span>→</span> <b>Fall 2029</b> 9–12월 예상 · 학교별 마감 확인</p></div>' : '';
+    return '<section class="rm-year"><header><h3>' + y + '<span>' + (y === 2026 ? '10–12월' : y === 2029 ? '1–2월' : '1–12월') + '</span></h3><span>' + count + '개 일정</span></header><div class="rm-scroll" tabindex="0" role="region" aria-label="' + y + '년 학회 로드맵, 좌우로 스크롤"><div class="rm-grid" style="--months:' + months.length + '"><div class="rm-row rm-months"><div class="rm-label">일정 / 월</div>' + cells + '</div>' + rows + '</div></div>' + admissions + '</section>';
+  }).join('');
+  document.querySelector('#roadmap-count').textContent = events.filter(e => selectedYear === 'all' || e.date.startsWith(selectedYear)).length + '개 일정';
+}
+export function renderRoadmap(conferences) {
+  const host = document.querySelector('#research-roadmap');
+  if (!host) return;
+  data = conferences;
+  if (!mounted) {
+    host.innerHTML = '<div class="rm-heading"><div><span class="rm-eyebrow">RESEARCH ROADMAP · 2026.10 — 2029.02</span><h2 id="roadmap-title">논문 제출부터 학회 발표까지</h2><p>석사 과정과 PhD 지원 일정에 맞춰 보는 학회 로드맵</p></div><span id="roadmap-count"></span></div><div class="rm-controls"><div class="rm-filters" role="group" aria-label="로드맵 분야"><button data-rm-category="all" aria-pressed="true">전체</button><button data-rm-category="robotics" aria-pressed="false">Robotics</button><button data-rm-category="ai" aria-pressed="false">AI</button><button data-rm-category="driving" aria-pressed="false">Autonomous Driving</button></div><div class="rm-options"><label>연도 <select id="roadmap-year"><option value="all">전체 기간</option><option>2026</option><option>2027</option><option>2028</option><option>2029</option></select></label><label><input id="roadmap-confirmed" type="checkbox"> 공식 일정만</label></div></div><div class="rm-legend"><span class="rm-deadline"><i></i>제출 마감</span><span class="rm-decision"><i></i>합격 결과</span><span class="rm-talk"><i></i>학회 발표</span><span class="rm-dashed"></span><span>점선 · 예상 일정</span><span class="rm-scroll-hint">좌우로 스크롤 →</span></div><div id="roadmap-years"></div><div class="rm-footnote"><p>공식 일정은 위 목록과 함께 갱신됩니다. 미공개 회차는 최근 일정의 월을 참고한 예상이며, 실제 제출 마감으로 사용하지 마세요. 카드를 누르면 공식 출처가 열립니다.</p><p>시간이 공개된 일정은 KST로 환산합니다. 학회 발표는 개최 기간이며 개인 발표일은 별도입니다. RSS 2차 제출은 1차 통과자만 대상입니다. 상시 투고 저널은 제외합니다.</p><p>석사: 2027.03–2028.12 계획 · Spring 2029는 보통 1월 입학, Fall 2029는 8–9월 입학입니다. 원서접수는 계획용 예상 기간입니다.</p></div>';
+    host.querySelectorAll('[data-rm-category]').forEach(button => button.addEventListener('click', () => { category = button.dataset.rmCategory; host.querySelectorAll('[data-rm-category]').forEach(b => b.setAttribute('aria-pressed', String(b === button))); draw(); }));
+    host.querySelector('#roadmap-year').addEventListener('change', e => { selectedYear = e.target.value; draw(); });
+    host.querySelector('#roadmap-confirmed').addEventListener('change', e => { confirmedOnly = e.target.checked; draw(); });
+    mounted = true;
+  }
+  draw();
+}
