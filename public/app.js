@@ -1,4 +1,3 @@
-import { renderRoadmap } from './roadmap.js';
 const STATIC_MODE = document.querySelector('meta[name="paper-mode"]')?.content === "static";
 const paths = {
   grid: '<rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/>',
@@ -209,7 +208,7 @@ function renderSync() {
   $('#sync-summary').title = `${s.message || ''}\n다음 갱신: ${s.nextSyncAt ? dateText(s.nextSyncAt, true) : STATIC_MODE ? '30분 간격 예약 실행 · 지연 가능' : '서버 시작 후 예약'}`;
   if (busy && !refreshTimer) refreshTimer = setTimeout(() => { refreshTimer = null; fetchData(); }, 2500);
 }
-function renderAll() { renderStats(); renderNext(); renderRows(); renderSync(); renderRoadmap(state.conferences); }
+function renderAll() { renderStats(); renderNext(); renderRows(); renderSync(); }
 
 function showDetail(id) {
   const c = state.conferences.find(c => c.id === id);

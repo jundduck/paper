@@ -17,11 +17,15 @@ const html = (await readFile(resolve(destination, 'index.html'), 'utf8'))
   .replace('./api/calendar.ics', './calendar.ics')
   .replace('./styles.css', `./styles.css?v=${assetVersion}`)
   .replace('./notification.css', `./notification.css?v=${assetVersion}`)
-  .replace('./roadmap.css', `./roadmap.css?v=${assetVersion}`)
   .replace('./app.js', `./app.js?v=${assetVersion}`);
 await writeFile(resolve(destination, 'index.html'), html);
-const app = (await readFile(resolve(destination, 'app.js'), 'utf8')).replace('./roadmap.js', `./roadmap.js?v=${assetVersion}`);
-await writeFile(resolve(destination, 'app.js'), app);
+const studyHtml = (await readFile(resolve(destination, 'study-abroad/index.html'), 'utf8'))
+  .replace('<head>', '<head><meta name="paper-mode" content="static">')
+  .replace('../roadmap.css', `../roadmap.css?v=${assetVersion}`)
+  .replace('./roadmap-page.js', `./roadmap-page.js?v=${assetVersion}`);
+await writeFile(resolve(destination, 'study-abroad/index.html'), studyHtml);
+const roadmapPage = (await readFile(resolve(destination, 'study-abroad/roadmap-page.js'), 'utf8')).replace('../roadmap.js', `../roadmap.js?v=${assetVersion}`);
+await writeFile(resolve(destination, 'study-abroad/roadmap-page.js'), roadmapPage);
 await writeFile(resolve(destination, 'data.json'), JSON.stringify(snapshot));
 await writeFile(resolve(destination, 'calendar.ics'), createCalendar(snapshot.conferences));
 await writeFile(resolve(destination, '.nojekyll'), '');

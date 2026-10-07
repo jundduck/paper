@@ -179,6 +179,26 @@ try {
   await writeFile(join(artifacts, 'downloaded-calendar.ics'), ics);
 
 
+  check('Main page no longer shows the research roadmap', await evaluate("document.querySelector('#research-roadmap') === null"));
+
+  await cdp('Emulation.setDeviceMetricsOverride', { width: 390, height: 844, deviceScaleFactor: 1, mobile: true });
+  await evaluate('window.scrollTo(0, 0)');
+  check('Mobile has no page overflow', await evaluate('document.documentElement.scrollWidth <= innerWidth'));
+  check('Mobile deadlines are visible without horizontal scrolling', await evaluate("(() => { const r = document.querySelector('#conference-rows tr td:nth-child(3)').getBoundingClientRect(); return r.left >= 0 && r.right <= innerWidth; })()"));
+  check('Mobile acceptance rate fits card', await evaluate("(() => { const r = document.querySelector('.acceptance-cell').getBoundingClientRect(); return r.width > 0 && r.left >= 0 && r.right <= innerWidth; })()"));
+  await screenshot('mobile.png');
+  await click('[data-nav="saved"]'); check('Mobile saved navigation works', await count(), 1);
+  await click('[data-nav="all"]');
+  await click(`.venue-details[data-detail="${first.id}"]`);
+  check('Mobile modal fits screen', await evaluate("(() => { const r = document.querySelector('dialog').getBoundingClientRect(); return r.left >= 0 && r.right <= innerWidth; })()"));
+  await screenshot('mobile-detail.png'); await key('Escape');
+
+  // The research roadmap lives below the US robotics map on the study-abroad page.
+  await cdp('Emulation.setDeviceMetricsOverride', { width: 1440, height: 1080, deviceScaleFactor: 1, mobile: false });
+  await cdp('Page.navigate', { url: (origin.endsWith('/') ? origin : origin + '/') + 'study-abroad/' });
+  await until(() => evaluate("document.querySelectorAll('.rm-year').length === 4"), 'study-abroad roadmap');
+  check('Roadmap sits below the study-abroad map', await evaluate("Boolean(document.querySelector('.workspace').compareDocumentPosition(document.querySelector('#research-roadmap')) & Node.DOCUMENT_POSITION_FOLLOWING)"));
+  check('Roadmap year header is not stretched by page header styles', await evaluate("(h => h.backgroundColor === 'rgba(0, 0, 0, 0)' && h.paddingLeft === '22px')(getComputedStyle(document.querySelector('.rm-year>header')))"));
   check('Roadmap renders four year panels', await evaluate("document.querySelectorAll('.rm-year').length"), 4);
   check('Roadmap has 29 months through Feb 2029', await evaluate("document.querySelectorAll('.rm-month').length"), 29);
   check('Roadmap has three event lanes per year', await evaluate("document.querySelectorAll('.rm-year .rm-row:not(.rm-months)').length"), 12);
@@ -195,21 +215,12 @@ try {
   check('PhD application period included', await evaluate("document.querySelector('.rm-application').textContent.includes('Fall 2029')"));
   await evaluate("document.querySelector('#roadmap-year').value='all';document.querySelector('#roadmap-year').dispatchEvent(new Event('change'));document.querySelector('#research-roadmap').scrollIntoView()");
   await screenshot('roadmap-desktop.png');
-
+  check('Study-abroad desktop has no page overflow', await evaluate('document.documentElement.scrollWidth <= innerWidth'));
   await cdp('Emulation.setDeviceMetricsOverride', { width: 390, height: 844, deviceScaleFactor: 1, mobile: true });
-  await evaluate('window.scrollTo(0, 0)');
-  check('Mobile has no page overflow', await evaluate('document.documentElement.scrollWidth <= innerWidth'));
-  check('Mobile deadlines are visible without horizontal scrolling', await evaluate("(() => { const r = document.querySelector('#conference-rows tr td:nth-child(3)').getBoundingClientRect(); return r.left >= 0 && r.right <= innerWidth; })()"));
-  check('Mobile acceptance rate fits card', await evaluate("(() => { const r = document.querySelector('.acceptance-cell').getBoundingClientRect(); return r.width > 0 && r.left >= 0 && r.right <= innerWidth; })()"));
-  await screenshot('mobile.png');
   await evaluate("document.querySelector('#research-roadmap').scrollIntoView()");
   check('Roadmap scrolls within mobile page', await evaluate("(() => {const e=document.querySelectorAll('.rm-scroll')[1];e.scrollLeft=400;return e.scrollLeft>0 && document.documentElement.scrollWidth<=innerWidth;})()"));
   await screenshot('roadmap-mobile.png');
-  await click('[data-nav="saved"]'); check('Mobile saved navigation works', await count(), 1);
-  await click('[data-nav="all"]');
-  await click(`.venue-details[data-detail="${first.id}"]`);
-  check('Mobile modal fits screen', await evaluate("(() => { const r = document.querySelector('dialog').getBoundingClientRect(); return r.left >= 0 && r.right <= innerWidth; })()"));
-  await screenshot('mobile-detail.png'); await key('Escape');
+  await cdp('Page.navigate', { url: origin }); await loaded();
 
   const baselineErrors = [...errors];
   on('Fetch.requestPaused', async ({ requestId }) => {
@@ -228,7 +239,7 @@ try {
   await cdp('Page.reload'); await loaded(); check('Recovered API hides error banner', await evaluate("document.querySelector('#load-error').hidden"));
   check('No browser console, runtime, or resource errors during normal use', baselineErrors, []);
 
-  await writeFile(join(artifacts, 'browser-report.json'), JSON.stringify({ origin, testedAt: new Date().toISOString(), checks, errors, screenshots: ['desktop.png', 'mobile.png', 'calendar.png', 'mobile-detail.png'], venueCount: initial.conferences.length }, null, 2));
+  await writeFile(join(artifacts, 'browser-report.json'), JSON.stringify({ origin, testedAt: new Date().toISOString(), checks, errors, screenshots: ['desktop.png', 'mobile.png', 'calendar.png', 'mobile-detail.png', 'roadmap-desktop.png', 'roadmap-mobile.png'], venueCount: initial.conferences.length }, null, 2));
   console.log(`\n${checks.length} browser checks passed. Artifacts: ${artifacts}`);
 } catch (error) {
   await writeFile(join(artifacts, 'browser-report.json'), JSON.stringify({ origin, testedAt: new Date().toISOString(), checks, errors, failure: error.stack }, null, 2));
