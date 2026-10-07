@@ -216,6 +216,22 @@ try {
   check('PhD application period included', await evaluate("document.querySelector('.rm-application').textContent.includes('Fall 2029')"));
   check('2028 Aug–Dec PhD application months are shaded pink', await evaluate("(() => { const months = [...document.querySelectorAll('.rm-month.rm-apply')].map(e => e.querySelector('strong').textContent).join(); const bg = getComputedStyle(document.querySelector('.rm-cell.rm-apply')).backgroundColor; return months === '8월,9월,10월,11월,12월' && document.querySelectorAll('.rm-cell.rm-apply').length === 15 && bg.startsWith('rgba(244, 114, 182, 0.1'); })()"));
   await evaluate("document.querySelector('#roadmap-year').value='all';document.querySelector('#roadmap-year').dispatchEvent(new Event('change'));document.querySelector('#research-roadmap').scrollIntoView()");
+  const wheelOverTable = async deltaY => {
+    const point = await evaluate("(() => { const r = document.querySelector('.rm-scroll').getBoundingClientRect(); return { x: r.x + r.width / 2, y: Math.max(r.top, 0) + 120 }; })()");
+    await cdp('Input.dispatchMouseEvent', { type: 'mouseWheel', deltaX: 0, deltaY, ...point });
+    await sleep(200);
+  };
+  await evaluate("document.querySelector('.rm-scroll').scrollIntoView({ block: 'start' }); document.querySelector('.rm-scroll').scrollLeft = 0; window.addEventListener('wheel', e => { window.__wheelPrevented = e.defaultPrevented; }, { passive: true })");
+  const pageY = await evaluate('scrollY');
+  await wheelOverTable(300);
+  check('Wheel down over the roadmap scrolls it right, not the page', await evaluate(`document.querySelector('.rm-scroll').scrollLeft > 200 && scrollY === ${pageY}`));
+  const rightPosition = await evaluate("document.querySelector('.rm-scroll').scrollLeft");
+  await wheelOverTable(-200);
+  check('Wheel up over the roadmap scrolls it left', await evaluate(`document.querySelector('.rm-scroll').scrollLeft < ${rightPosition} && scrollY === ${pageY}`));
+  await evaluate("(s => { s.scrollLeft = s.scrollWidth; })(document.querySelector('.rm-scroll'))");
+  await wheelOverTable(100);
+  check('Wheel at the right end of the roadmap is left to the page', await evaluate('window.__wheelPrevented'), false);
+  await evaluate("document.querySelector('.rm-scroll').scrollLeft = 0");
   const shiftClick = async selector => {
     const point = await evaluate(`(() => { const el = document.querySelector(${JSON.stringify(selector)}); el.scrollIntoView({ block: 'center', inline: 'center' }); const r = el.getBoundingClientRect(); return { x: r.x + r.width / 2, y: r.y + r.height / 2 }; })()`);
     await cdp('Input.dispatchMouseEvent', { type: 'mousePressed', button: 'left', clickCount: 1, modifiers: 8, ...point });
