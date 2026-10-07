@@ -196,12 +196,13 @@ try {
   // The research roadmap lives below the US robotics map on the study-abroad page.
   await cdp('Emulation.setDeviceMetricsOverride', { width: 1440, height: 1080, deviceScaleFactor: 1, mobile: false });
   await cdp('Page.navigate', { url: (origin.endsWith('/') ? origin : origin + '/') + 'study-abroad/' });
-  await until(() => evaluate("document.querySelectorAll('.rm-year').length === 4"), 'study-abroad roadmap');
+  await until(() => evaluate("document.querySelectorAll('.rm-month').length === 29"), 'study-abroad roadmap');
   check('Roadmap sits below the study-abroad map', await evaluate("Boolean(document.querySelector('.workspace').compareDocumentPosition(document.querySelector('#research-roadmap')) & Node.DOCUMENT_POSITION_FOLLOWING)"));
-  check('Roadmap year header is not stretched by page header styles', await evaluate("(h => h.backgroundColor === 'rgba(0, 0, 0, 0)' && h.paddingLeft === '22px')(getComputedStyle(document.querySelector('.rm-year>header')))"));
-  check('Roadmap renders four year panels', await evaluate("document.querySelectorAll('.rm-year').length"), 4);
+  check('Roadmap year row is not restyled by page header rules', await evaluate("document.querySelector('.research-roadmap header') === null && getComputedStyle(document.querySelector('#roadmap-title')).marginBottom === '0px'"));
+  check('Roadmap shows every year in one table', await evaluate("document.querySelectorAll('.rm-year').length === 1 && document.querySelectorAll('.rm-scroll').length === 1 && [...document.querySelectorAll('.rm-year-cell strong')].map(e => e.textContent).join() === '2026,2027,2028,2029'"));
+  check('Combined roadmap scrolls sideways inside its panel', await evaluate("(() => { const e = document.querySelector('.rm-scroll'); return e.scrollWidth > e.clientWidth * 2; })()"));
   check('Roadmap has 29 months through Feb 2029', await evaluate("document.querySelectorAll('.rm-month').length"), 29);
-  check('Roadmap has three event lanes per year', await evaluate("document.querySelectorAll('.rm-year .rm-row:not(.rm-months)').length"), 12);
+  check('Roadmap has three event lanes', await evaluate("document.querySelectorAll('.rm-year .rm-row:not(.rm-months):not(.rm-years-row)').length"), 3);
   check('Roadmap Korean heading renders', await evaluate("document.querySelector('#roadmap-title').textContent"), '논문 제출부터 학회 발표까지');
   check('RSS conference presentation is included', await evaluate("[...document.querySelectorAll('.rm-event.rm-talk')].some(e=>e.textContent.includes('RSS')&&e.textContent.includes('2027'))"));
   await click('#roadmap-confirmed');
@@ -211,14 +212,14 @@ try {
   check('Roadmap field filter works', await evaluate("[...document.querySelectorAll('.rm-event-head strong')].every(e=>/^(IV|ITSC) /.test(e.textContent))"));
   await click('[data-rm-category="all"]');
   await evaluate("document.querySelector('#roadmap-year').value='2028';document.querySelector('#roadmap-year').dispatchEvent(new Event('change'))");
-  check('Roadmap year filter works', await evaluate("document.querySelectorAll('.rm-year').length"), 1);
+  check('Roadmap year filter works', await evaluate("document.querySelectorAll('.rm-month').length === 12 && document.querySelectorAll('.rm-year-cell').length === 1"));
   check('PhD application period included', await evaluate("document.querySelector('.rm-application').textContent.includes('Fall 2029')"));
   await evaluate("document.querySelector('#roadmap-year').value='all';document.querySelector('#roadmap-year').dispatchEvent(new Event('change'));document.querySelector('#research-roadmap').scrollIntoView()");
   await screenshot('roadmap-desktop.png');
   check('Study-abroad desktop has no page overflow', await evaluate('document.documentElement.scrollWidth <= innerWidth'));
   await cdp('Emulation.setDeviceMetricsOverride', { width: 390, height: 844, deviceScaleFactor: 1, mobile: true });
   await evaluate("document.querySelector('#research-roadmap').scrollIntoView()");
-  check('Roadmap scrolls within mobile page', await evaluate("(() => {const e=document.querySelectorAll('.rm-scroll')[1];e.scrollLeft=400;return e.scrollLeft>0 && document.documentElement.scrollWidth<=innerWidth;})()"));
+  check('Roadmap scrolls within mobile page', await evaluate("(() => {const e=document.querySelector('.rm-scroll');e.scrollLeft=400;return e.scrollLeft>0 && document.documentElement.scrollWidth<=innerWidth;})()"));
   await screenshot('roadmap-mobile.png');
   await cdp('Page.navigate', { url: origin }); await loaded();
 

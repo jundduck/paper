@@ -77,19 +77,36 @@ function phase(y,m) {
   if (y === 2028) return m < 3 ? '석사 2학기' : m < 9 ? '석사 3학기' : '석사 4학기';
   return '석사 종료 후';
 }
+const monthsOf = y => Array.from({length: y === 2026 ? 3 : y === 2029 ? 2 : 12}, (_, i) => y === 2026 ? i + 10 : i + 1);
+const rangeOf = y => y === 2026 ? '10–12월' : y === 2029 ? '1–2월' : '1–12월';
+let drawnYear = null;
+// One continuous table for the whole period; it scrolls sideways instead of stacking a panel per year.
 function draw() {
   const events = buildRoadmap(data).filter(e => (category === 'all' || e.category === category) && (!confirmedOnly || !e.estimate));
   const years = [2026,2027,2028,2029].filter(y => selectedYear === 'all' || String(y) === selectedYear);
   const today = new Intl.DateTimeFormat('sv-SE',{timeZone:'Asia/Seoul',year:'numeric',month:'2-digit'}).format(new Date());
-  document.querySelector('#roadmap-years').innerHTML = years.map(y => {
-    const months = Array.from({length:y === 2026 ? 3 : y === 2029 ? 2 : 12}, (_,i) => y === 2026 ? i + 10 : i + 1);
-    const count = events.filter(e => Number(e.date.slice(0,4)) === y).length;
-    const cells = months.map(m => '<div class="rm-month' + (month(y,m) === today ? ' rm-current' : '') + '"><strong>' + m + '월</strong><span>' + phase(y,m) + '</span></div>').join('');
-    const rows = Object.entries(lanes).map(([kind,[name,subtitle]]) => '<div class="rm-row"><div class="rm-label rm-' + kind + '"><i></i><strong>' + name + '</strong><small>' + subtitle + '</small></div>' + months.map(m => '<div class="rm-cell' + (month(y,m) === today ? ' rm-current' : '') + '">' + events.filter(e => e.kind === kind && e.date.slice(0,7) === month(y,m)).map(card).join('') + '</div>').join('') + '</div>').join('');
-    const admissions = y === 2028 ? '<div class="rm-application"><span>PhD 원서접수</span><p><b>Spring 2029</b> 8–10월 예상 · 모집 학교만 <span>→</span> <b>Fall 2029</b> 9–12월 예상 · 학교별 마감 확인</p></div>' : '';
-    return '<section class="rm-year"><header><h3>' + y + '<span>' + (y === 2026 ? '10–12월' : y === 2029 ? '1–2월' : '1–12월') + '</span></h3><span>' + count + '개 일정</span></header><div class="rm-scroll" tabindex="0" role="region" aria-label="' + y + '년 학회 로드맵, 좌우로 스크롤"><div class="rm-grid" style="--months:' + months.length + '"><div class="rm-row rm-months"><div class="rm-label">일정 / 월</div>' + cells + '</div>' + rows + '</div></div>' + admissions + '</section>';
-  }).join('');
-  document.querySelector('#roadmap-count').textContent = events.filter(e => selectedYear === 'all' || e.date.startsWith(selectedYear)).length + '개 일정';
+  const columns = years.flatMap(y => monthsOf(y).map((m, i) => ({y, m, key: month(y, m), first: i === 0})));
+  const cls = (base, c) => base + (c.first ? ' rm-year-start' : '') + (c.key === today ? ' rm-current' : '');
+  const shown = events.filter(e => years.includes(Number(e.date.slice(0,4))));
+  const yearRow = '<div class="rm-row rm-years-row"><div class="rm-label">연도</div>' + years.map(y => '<div class="rm-year-cell rm-year-start" style="grid-column:span ' + monthsOf(y).length + '"><div><strong>' + y + '</strong><span>' + rangeOf(y) + ' · ' + shown.filter(e => Number(e.date.slice(0,4)) === y).length + '개 일정</span></div></div>').join('') + '</div>';
+  const monthRow = '<div class="rm-row rm-months"><div class="rm-label">일정 / 월</div>' + columns.map(c => '<div class="' + cls('rm-month', c) + '"><strong>' + c.m + '월</strong><span>' + phase(c.y, c.m) + '</span></div>').join('') + '</div>';
+  const rows = Object.entries(lanes).map(([kind,[name,subtitle]]) => '<div class="rm-row"><div class="rm-label rm-' + kind + '"><i></i><strong>' + name + '</strong><small>' + subtitle + '</small></div>' + columns.map(c => '<div class="' + cls('rm-cell', c) + '">' + shown.filter(e => e.kind === kind && e.date.slice(0,7) === c.key).map(card).join('') + '</div>').join('') + '</div>').join('');
+  const admissions = years.includes(2028) ? '<div class="rm-application"><span>PhD 원서접수 · 2028</span><p><b>Spring 2029</b> 8–10월 예상 · 모집 학교만 <span>→</span> <b>Fall 2029</b> 9–12월 예상 · 학교별 마감 확인</p></div>' : '';
+  const host = document.querySelector('#roadmap-years');
+  const previous = host.querySelector('.rm-scroll');
+  const keep = previous && drawnYear === selectedYear ? previous.scrollLeft : null;
+  const label = years.length === 1 ? years[0] + '년 학회 로드맵' : '2026년 10월부터 2029년 2월까지 학회 로드맵';
+  host.innerHTML = '<section class="rm-year rm-timeline"><div class="rm-scroll" tabindex="0" role="region" aria-label="' + label + ', 좌우로 스크롤"><div class="rm-grid" style="--months:' + columns.length + '">' + yearRow + monthRow + rows + '</div></div>' + admissions + '</section>';
+  const scroller = host.querySelector('.rm-scroll');
+  if (keep !== null) scroller.scrollLeft = keep;
+  else {
+    // First view of a range: start at the current month when it is inside the table.
+    const current = scroller.querySelector('.rm-month.rm-current');
+    const labelWidth = scroller.querySelector('.rm-label')?.offsetWidth || 0;
+    if (current) scroller.scrollLeft = current.getBoundingClientRect().left - scroller.getBoundingClientRect().left + scroller.scrollLeft - labelWidth;
+  }
+  drawnYear = selectedYear;
+  document.querySelector('#roadmap-count').textContent = shown.length + '개 일정';
 }
 export function renderRoadmap(conferences) {
   const host = document.querySelector('#research-roadmap');
