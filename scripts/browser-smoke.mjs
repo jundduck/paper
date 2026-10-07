@@ -214,6 +214,7 @@ try {
   await evaluate("document.querySelector('#roadmap-year').value='2028';document.querySelector('#roadmap-year').dispatchEvent(new Event('change'))");
   check('Roadmap year filter works', await evaluate("document.querySelectorAll('.rm-month').length === 12 && document.querySelectorAll('.rm-year-cell').length === 1"));
   check('PhD application period included', await evaluate("document.querySelector('.rm-application').textContent.includes('Fall 2029')"));
+  check('2028 Aug–Dec PhD application months are shaded pink', await evaluate("(() => { const months = [...document.querySelectorAll('.rm-month.rm-apply')].map(e => e.querySelector('strong').textContent).join(); const bg = getComputedStyle(document.querySelector('.rm-cell.rm-apply')).backgroundColor; return months === '8월,9월,10월,11월,12월' && document.querySelectorAll('.rm-cell.rm-apply').length === 15 && bg.startsWith('rgba(244, 114, 182, 0.1'); })()"));
   await evaluate("document.querySelector('#roadmap-year').value='all';document.querySelector('#roadmap-year').dispatchEvent(new Event('change'));document.querySelector('#research-roadmap').scrollIntoView()");
   const shiftClick = async selector => {
     const point = await evaluate(`(() => { const el = document.querySelector(${JSON.stringify(selector)}); el.scrollIntoView({ block: 'center', inline: 'center' }); const r = el.getBoundingClientRect(); return { x: r.x + r.width / 2, y: r.y + r.height / 2 }; })()`);
