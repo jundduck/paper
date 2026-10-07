@@ -54,22 +54,34 @@ export function buildRoadmap(conferences) {
           if (conflict) { date = year - 1 + '-08'; label = '8–9월 · 공식 자료 상충'; basis = 'IEEE RAS 행사 기록에 8/16과 9/15가 혼재하여 확정 마감으로 사용하지 않습니다.'; }
         }
         if (c.acronym === 'RSS' && kind === 'deadline') label = '1차 · 확장 초록';
-        if (inRange(date)) events.push({acronym:c.acronym,year,kind,date,end,estimate,label,source,basis,category:c.category});
+        if (inRange(date)) events.push({id:c.acronym + '-' + year + '-' + kind,acronym:c.acronym,year,kind,date,end,estimate,label,source,basis,category:c.category});
       }
       if (c.acronym === 'RSS') {
         const final = same && c.finalPaperDeadline ? kst(c.finalPaperDeadline) : null;
         const date = final || (year === 2027 ? '2027-04-17' : month(year,4));
-        if (inRange(date)) events.push({acronym:c.acronym,year,kind:'deadline',date,estimate:!final && year !== 2027,label:'2차 · 초청자만 최종 논문',source:c.sourceUrl,basis:'RSS 2027의 2단계 심사 일정 기준 · 4월 신규 투고 불가',category:c.category});
+        if (inRange(date)) events.push({id:c.acronym + '-' + year + '-final',acronym:c.acronym,year,kind:'deadline',date,estimate:!final && year !== 2027,label:'2차 · 초청자만 최종 논문',source:c.sourceUrl,basis:'RSS 2027의 2단계 심사 일정 기준 · 4월 신규 투고 불가',category:c.category});
       }
     }
   }
   return events.sort((a,b) => a.date.localeCompare(b.date) || a.acronym.localeCompare(b.acronym));
 }
 let data = [], category = 'all', selectedYear = 'all', confirmedOnly = false, mounted = false;
+// Shift+click marks a card with a red border; marks stay in this browser only.
+const MARK_KEY = 'papertrail-roadmap-marked';
+const marked = new Set((() => { try { const v = JSON.parse(localStorage.getItem(MARK_KEY)); return Array.isArray(v) ? v : []; } catch { return []; } })());
+function toggleMark(cardEl) {
+  const id = cardEl.dataset.id;
+  if (marked.has(id)) marked.delete(id); else marked.add(id);
+  const on = marked.has(id);
+  cardEl.classList.toggle('rm-marked', on);
+  cardEl.querySelector('.rm-status').textContent = cardEl.querySelector('.rm-status').textContent.replace(/ · 표시함$/, '') + (on ? ' · 표시함' : '');
+  try { localStorage.setItem(MARK_KEY, JSON.stringify([...marked])); } catch {}
+}
 function card(e) {
   const when = e.estimate ? Number(e.date.slice(5,7)) + '월 예상' : e.date.slice(5).replace('-', '.') + (e.end && e.end !== e.date ? '–' + e.end.slice(5).replace('-', '.') : '');
-  const status = e.estimate ? '예상' : '공식';
-  return '<a class="rm-event rm-' + e.kind + (e.estimate ? ' rm-estimate' : '') + '" href="' + url(e.source) + '" target="_blank" rel="noopener noreferrer" title="' + escape(e.estimate ? e.basis : '공식 일정 · 날짜는 KST 기준, 날짜만 발표된 경우 원문 날짜') + '"><span class="rm-event-head"><strong>' + escape(e.acronym) + ' <small>' + e.year + '</small></strong><span class="rm-status">' + status + '</span></span><span class="rm-when">' + when + '</span><span class="rm-detail">' + escape(e.label) + '</span></a>';
+  const on = marked.has(e.id);
+  const status = (e.estimate ? '예상' : '공식') + (on ? ' · 표시함' : '');
+  return '<a class="rm-event rm-' + e.kind + (e.estimate ? ' rm-estimate' : '') + (on ? ' rm-marked' : '') + '" data-id="' + escape(e.id) + '" href="' + url(e.source) + '" target="_blank" rel="noopener noreferrer" title="' + escape(e.estimate ? e.basis : '공식 일정 · 날짜는 KST 기준, 날짜만 발표된 경우 원문 날짜') + '"><span class="rm-event-head"><strong>' + escape(e.acronym) + ' <small>' + e.year + '</small></strong><span class="rm-status">' + status + '</span></span><span class="rm-when">' + when + '</span><span class="rm-detail">' + escape(e.label) + '</span></a>';
 }
 function phase(y,m) {
   if (y === 2026 || y === 2027 && m <= 2) return '연구 인턴';
@@ -113,10 +125,14 @@ export function renderRoadmap(conferences) {
   if (!host) return;
   data = conferences;
   if (!mounted) {
-    host.innerHTML = '<div class="rm-heading"><div><span class="rm-eyebrow">RESEARCH ROADMAP · 2026.10 — 2029.02</span><h2 id="roadmap-title">논문 제출부터 학회 발표까지</h2><p>석사 과정과 PhD 지원 일정에 맞춰 보는 학회 로드맵</p></div><span id="roadmap-count"></span></div><div class="rm-controls"><div class="rm-filters" role="group" aria-label="로드맵 분야"><button data-rm-category="all" aria-pressed="true">전체</button><button data-rm-category="robotics" aria-pressed="false">Robotics</button><button data-rm-category="ai" aria-pressed="false">AI</button><button data-rm-category="driving" aria-pressed="false">Autonomous Driving</button></div><div class="rm-options"><label>연도 <select id="roadmap-year"><option value="all">전체 기간</option><option>2026</option><option>2027</option><option>2028</option><option>2029</option></select></label><label><input id="roadmap-confirmed" type="checkbox"> 공식 일정만</label></div></div><div class="rm-legend"><span class="rm-deadline"><i></i>제출 마감</span><span class="rm-decision"><i></i>합격 결과</span><span class="rm-talk"><i></i>학회 발표</span><span class="rm-solid"></span><span>실선 · 공식 일정</span><span class="rm-dashed"></span><span>점선 · 예상 일정</span><span class="rm-scroll-hint">좌우로 스크롤 →</span></div><div id="roadmap-years"></div><div class="rm-footnote"><p>공식 일정은 위 목록과 함께 갱신됩니다. 미공개 회차는 최근 일정의 월을 참고한 예상이며, 실제 제출 마감으로 사용하지 마세요. 카드를 누르면 공식 출처가 열립니다.</p><p>시간이 공개된 일정은 KST로 환산합니다. 학회 발표는 개최 기간이며 개인 발표일은 별도입니다. RSS 2차 제출은 1차 통과자만 대상입니다. 상시 투고 저널은 제외합니다.</p><p>석사: 2027.03–2028.12 계획 · Spring 2029는 보통 1월 입학, Fall 2029는 8–9월 입학입니다. 원서접수는 계획용 예상 기간입니다.</p></div>';
+    host.innerHTML = '<div class="rm-heading"><div><span class="rm-eyebrow">RESEARCH ROADMAP · 2026.10 — 2029.02</span><h2 id="roadmap-title">논문 제출부터 학회 발표까지</h2><p>석사 과정과 PhD 지원 일정에 맞춰 보는 학회 로드맵</p></div><span id="roadmap-count"></span></div><div class="rm-controls"><div class="rm-filters" role="group" aria-label="로드맵 분야"><button data-rm-category="all" aria-pressed="true">전체</button><button data-rm-category="robotics" aria-pressed="false">Robotics</button><button data-rm-category="ai" aria-pressed="false">AI</button><button data-rm-category="driving" aria-pressed="false">Autonomous Driving</button></div><div class="rm-options"><label>연도 <select id="roadmap-year"><option value="all">전체 기간</option><option>2026</option><option>2027</option><option>2028</option><option>2029</option></select></label><label><input id="roadmap-confirmed" type="checkbox"> 공식 일정만</label></div></div><div class="rm-legend"><span class="rm-deadline"><i></i>제출 마감</span><span class="rm-decision"><i></i>합격 결과</span><span class="rm-talk"><i></i>학회 발표</span><span class="rm-solid"></span><span>실선 · 공식 일정</span><span class="rm-dashed"></span><span>점선 · 예상 일정</span><span class="rm-mark-swatch"></span><span>Shift+클릭 · 빨간 테두리 표시</span><span class="rm-scroll-hint">좌우로 스크롤 →</span></div><div id="roadmap-years"></div><div class="rm-footnote"><p>공식 일정은 위 목록과 함께 갱신됩니다. 미공개 회차는 최근 일정의 월을 참고한 예상이며, 실제 제출 마감으로 사용하지 마세요. 카드를 누르면 공식 출처가 열리고, Shift+클릭하면 빨간 테두리로 표시됩니다. 표시는 이 브라우저에만 저장됩니다.</p><p>시간이 공개된 일정은 KST로 환산합니다. 학회 발표는 개최 기간이며 개인 발표일은 별도입니다. RSS 2차 제출은 1차 통과자만 대상입니다. 상시 투고 저널은 제외합니다.</p><p>석사: 2027.03–2028.12 계획 · Spring 2029는 보통 1월 입학, Fall 2029는 8–9월 입학입니다. 원서접수는 계획용 예상 기간입니다.</p></div>';
     host.querySelectorAll('[data-rm-category]').forEach(button => button.addEventListener('click', () => { category = button.dataset.rmCategory; host.querySelectorAll('[data-rm-category]').forEach(b => b.setAttribute('aria-pressed', String(b === button))); draw(); }));
     host.querySelector('#roadmap-year').addEventListener('change', e => { selectedYear = e.target.value; draw(); });
     host.querySelector('#roadmap-confirmed').addEventListener('change', e => { confirmedOnly = e.target.checked; draw(); });
+    // Shift+click (or Shift+Enter) toggles the red mark instead of opening the source in a new window.
+    host.addEventListener('mousedown', e => { if (e.shiftKey && e.target.closest('.rm-event')) e.preventDefault(); });
+    host.addEventListener('click', e => { const el = e.target.closest('.rm-event'); if (!el || !e.shiftKey) return; e.preventDefault(); toggleMark(el); });
+    host.addEventListener('keydown', e => { const el = e.target.closest('.rm-event'); if (!el || !e.shiftKey || e.key !== 'Enter') return; e.preventDefault(); toggleMark(el); });
     mounted = true;
   }
   draw();
