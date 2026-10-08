@@ -205,7 +205,8 @@ try {
   check('Roadmap has three event lanes', await evaluate("document.querySelectorAll('.rm-year .rm-row:not(.rm-months):not(.rm-years-row)').length"), 3);
   check('Cards are coloured by field like the main page chips', await evaluate("(() => { const c = id => getComputedStyle(document.querySelector(`.rm-event[data-id=\"${id}\"] .rm-when`)).color; return c('CVPR-2027-deadline') === 'rgb(37, 99, 235)' && c('CVPR-2027-talk') === 'rgb(37, 99, 235)' && c('IROS-2027-deadline') === 'rgb(15, 136, 123)' && c('IV-2027-decision') === 'rgb(128, 82, 189)'; })()"));
   check('Cards show only venue and date, with the label kept in the tooltip', await evaluate("document.querySelectorAll('.rm-detail').length === 0 && document.querySelector('.rm-event[data-id=\"RSS-2027-final\"]').title.includes('초청자만')"));
-  check('Roadmap Korean heading renders', await evaluate("document.querySelector('#roadmap-title').textContent"), '논문 제출부터 학회 발표까지');
+  check('Roadmap Korean heading renders', await evaluate("document.querySelector('#roadmap-title').textContent"), '논문 투고 계획');
+  check('Roadmap heading omits decorative metadata', await evaluate("document.querySelector('.rm-eyebrow, #roadmap-count, .rm-scroll-hint, .rm-heading p') === null"));
   check('RSS conference presentation is included', await evaluate("[...document.querySelectorAll('.rm-event.rm-talk')].some(e=>e.textContent.includes('RSS')&&e.textContent.includes('2027'))"));
   await click('#roadmap-confirmed');
   check('Confirmed-only hides all estimates', await evaluate("document.querySelectorAll('.rm-estimate').length"), 0);
