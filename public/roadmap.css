@@ -16,3 +16,5 @@
 /* Fall 2028 PhD start, distinct from the estimated application window. */
 .rm-admit{background:#e9f3ff;border-left:2px solid #3b82f6}.rm-admit-swatch{height:12px;width:20px;background:#e9f3ff;border:1px solid #93c5fd;border-radius:3px;margin-right:-6px}
 .research-roadmap .rm-footnote a{color:#2563eb;text-decoration:underline;text-underline-offset:2px}
+
+.rm-plan-title{font-size:15px;font-weight:700;color:#1e293b;letter-spacing:-.35px;margin:17px 0 9px}.rm-plan-second{margin-top:30px}.rm-plan-second+.rm-legend{margin-top:2px}

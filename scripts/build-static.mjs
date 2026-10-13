@@ -22,6 +22,7 @@ await writeFile(resolve(destination, 'index.html'), html);
 const studyHtml = (await readFile(resolve(destination, 'study-abroad/index.html'), 'utf8'))
   .replace('<head>', '<head><meta name="paper-mode" content="static">')
   .replace('../roadmap.css', `../roadmap.css?v=${assetVersion}`)
+  .replace('./admissions.css', `./admissions.css?v=${assetVersion}`)
   .replace('./roadmap-page.js', `./roadmap-page.js?v=${assetVersion}`);
 await writeFile(resolve(destination, 'study-abroad/index.html'), studyHtml);
 const roadmapPage = (await readFile(resolve(destination, 'study-abroad/roadmap-page.js'), 'utf8')).replace('../roadmap.js', `../roadmap.js?v=${assetVersion}`);

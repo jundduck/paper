@@ -196,13 +196,15 @@ try {
   // The research roadmap lives below the US robotics map on the study-abroad page.
   await cdp('Emulation.setDeviceMetricsOverride', { width: 1440, height: 1080, deviceScaleFactor: 1, mobile: false });
   await cdp('Page.navigate', { url: (origin.endsWith('/') ? origin : origin + '/') + 'study-abroad/' });
-  await until(() => evaluate("document.querySelectorAll('.rm-month').length === 29"), 'study-abroad roadmap');
+  await until(() => evaluate("document.querySelectorAll('#roadmap-years .rm-month').length === 29 && document.querySelectorAll('#roadmap-years-standard .rm-month').length === 36"), 'both study-abroad roadmaps');
   check('Roadmap sits below the study-abroad map', await evaluate("Boolean(document.querySelector('.workspace').compareDocumentPosition(document.querySelector('#research-roadmap')) & Node.DOCUMENT_POSITION_FOLLOWING)"));
   check('Roadmap year row is not restyled by page header rules', await evaluate("document.querySelector('.research-roadmap header') === null && getComputedStyle(document.querySelector('#roadmap-title')).marginBottom === '0px'"));
-  check('Roadmap shows every year in one table', await evaluate("document.querySelectorAll('.rm-year').length === 1 && document.querySelectorAll('.rm-scroll').length === 1 && [...document.querySelectorAll('.rm-year-cell strong')].map(e => e.textContent).join() === '2026,2027,2028,2029'"));
+  check('Both roadmap plans have one continuous table', await evaluate("document.querySelectorAll('.rm-year').length === 2 && document.querySelectorAll('.rm-scroll').length === 2 && [...document.querySelectorAll('#roadmap-years .rm-year-cell strong')].map(e => e.textContent).join() === '2026,2027,2028,2029'"));
   check('Combined roadmap scrolls sideways inside its panel', await evaluate("(() => { const e = document.querySelector('.rm-scroll'); return e.scrollWidth > e.clientWidth * 2; })()"));
-  check('Roadmap has 29 months through Feb 2029', await evaluate("document.querySelectorAll('.rm-month').length"), 29);
-  check('Roadmap has one deadline lane', await evaluate("document.querySelectorAll('.rm-year .rm-row:not(.rm-months):not(.rm-years-row)').length"), 1);
+  check('Early graduation roadmap has 29 months through Feb 2029', await evaluate("document.querySelectorAll('#roadmap-years .rm-month').length"), 29);
+  check('December graduation roadmap runs through September 2029', await evaluate("document.querySelectorAll('#roadmap-years-standard .rm-month').length"), 36);
+  check('Standard graduation plan marks Fall 2029 application and arrival months', await evaluate("(() => { const a=[...document.querySelectorAll('#roadmap-years-standard .rm-month.rm-apply')].map(e=>e.querySelector('strong').textContent).join(); const start=document.querySelector('#roadmap-years-standard .rm-month.rm-admit'); return a==='9월,10월,11월,12월' && start?.querySelector('strong').textContent==='9월' && start.textContent.includes('PhD 입학 목표'); })()"));
+  check('Both roadmaps have one deadline lane', await evaluate("[...document.querySelectorAll('.rm-year')].every(e=>e.querySelectorAll('.rm-row:not(.rm-months):not(.rm-years-row)').length===1)"));
   check('Cards are coloured by field like the main page chips', await evaluate("(() => { const c = id => getComputedStyle(document.querySelector(`.rm-event[data-id=\"${id}\"] .rm-when`)).color; return c('CVPR-2027-deadline') === 'rgb(37, 99, 235)' && c('IROS-2027-deadline') === 'rgb(15, 136, 123)' && c('IV-2027-deadline') === 'rgb(128, 82, 189)'; })()"));
   check('Cards show only venue and date, with the label kept in the tooltip', await evaluate("document.querySelectorAll('.rm-detail').length === 0 && document.querySelector('.rm-event[data-id=\"RSS-2027-final\"]').title.includes('초청자만')"));
   check('Roadmap Korean heading renders', await evaluate("document.querySelector('#roadmap-title').textContent"), '논문 투고 계획');
@@ -216,10 +218,12 @@ try {
   check('Roadmap field filter works', await evaluate("[...document.querySelectorAll('.rm-event-head strong')].every(e=>/^(IV|ITSC) /.test(e.textContent))"));
   await click('[data-rm-category="all"]');
   await evaluate("document.querySelector('#roadmap-year').value='2028';document.querySelector('#roadmap-year').dispatchEvent(new Event('change'))");
-  check('Roadmap year filter works', await evaluate("document.querySelectorAll('.rm-month').length === 12 && document.querySelectorAll('.rm-year-cell').length === 1"));
+  check('Roadmap year filter works in both plans', await evaluate("document.querySelectorAll('#roadmap-years .rm-month').length === 12 && document.querySelectorAll('#roadmap-years-standard .rm-month').length === 12 && document.querySelectorAll('#roadmap-years .rm-year-cell').length === 1"));
   check('Fall 2028 PhD target included', await evaluate("document.querySelector('.rm-application').textContent.includes('Fall 2028')"));
   check('September 2028 PhD start is highlighted', await evaluate("(() => { const e=document.querySelector('.rm-month.rm-admit'); return e?.querySelector('strong').textContent === '9월' && e.textContent.includes('PhD 입학 목표') && document.querySelectorAll('.rm-cell.rm-admit').length === 1; })()"));
-  check('Three semesters end with August 2028 early graduation', await evaluate("(() => { const m=[...document.querySelectorAll('.rm-month')].map(e=>e.textContent); return m[7].includes('조기졸업') && m[8].includes('PhD 입학 목표') && !m.some(t=>t.includes('석사 4학기')) && document.querySelector('.rm-footnote').textContent.includes('2028년 8월 3학기 조기졸업'); })()"));
+  check('Three semesters end with August 2028 early graduation', await evaluate("(() => { const m=[...document.querySelectorAll('#roadmap-years .rm-month')].map(e=>e.textContent); return m[7].includes('조기졸업') && m[8].includes('PhD 입학 목표') && !m.some(t=>t.includes('석사 4학기')); })()"));
+  check('Four-semester plan graduates in December 2028', await evaluate("(() => { const m=[...document.querySelectorAll('#roadmap-years-standard .rm-month')].map(e=>e.textContent); return m[11].includes('졸업 예정') && m[8].includes('석사 4학기') && document.querySelector('#roadmap-years-standard .rm-application').textContent.includes('Fall 2029'); })()"));
+  check('School admissions table has 12 sourced CS PhD programs', await evaluate("document.querySelectorAll('#cs-admissions tbody tr').length === 12 && [...document.querySelectorAll('#cs-admissions tbody a')].every(a=>a.href.startsWith('https://'))"));
   await evaluate("document.querySelector('#roadmap-year').value='2027';document.querySelector('#roadmap-year').dispatchEvent(new Event('change'))");
   check('Fall 2028 applications are planned for September–December 2027', await evaluate("(() => { const months=[...document.querySelectorAll('.rm-month.rm-apply')].map(e=>e.querySelector('strong').textContent).join(); return months==='9월,10월,11월,12월' && document.querySelectorAll('.rm-cell.rm-apply').length===4 && document.querySelector('.rm-application').textContent.includes('2027.09–12'); })()"));
   await evaluate("document.querySelector('#roadmap-year').value='all';document.querySelector('#roadmap-year').dispatchEvent(new Event('change'));document.querySelector('#research-roadmap').scrollIntoView()");
@@ -256,7 +260,7 @@ try {
   check('Red mark survives a filter redraw', await isMarked());
   await click('[data-rm-category="all"]');
   await cdp('Page.reload');
-  await until(() => evaluate("document.querySelectorAll('.rm-month').length === 29"), 'roadmap after reload');
+  await until(() => evaluate("document.querySelectorAll('#roadmap-years .rm-month').length === 29 && document.querySelectorAll('#roadmap-years-standard .rm-month').length === 36"), 'roadmaps after reload');
   check('Red mark persists after reload', await isMarked());
   await shiftClick(markTarget);
   check('Second Shift+click removes the red mark', await isMarked(), false);
