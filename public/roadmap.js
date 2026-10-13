@@ -88,16 +88,17 @@ function card(e, result) {
 }
 function phase(y,m) {
   if (y === 2026 || y === 2027 && m <= 2) return '연구 인턴';
-  if (y === 2027) return m < 9 ? '석사 1학기' : '석사 2학기';
-  if (y === 2028) return m < 3 ? '석사 2학기' : m < 8 ? '석사 3학기' : m === 8 ? '3학기 · 조기졸업' : 'PhD 원서접수';
-  return '면접·결과 확인';
+  if (y === 2027) return m < 9 ? '석사 1학기' : '석사 2학기 · PhD 지원';
+  if (y === 2028) return m < 3 ? '석사 2학기 · 결과 대기' : m < 8 ? '석사 3학기' : m === 8 ? '3학기 · 조기졸업' : m === 9 ? '미국 PhD 입학 목표' : '미국 PhD 과정';
+  return '미국 PhD 과정';
 }
 const monthsOf = y => Array.from({length: y === 2026 ? 3 : y === 2029 ? 2 : 12}, (_, i) => y === 2026 ? i + 10 : i + 1);
 const rangeOf = y => y === 2026 ? '10–12월' : y === 2029 ? '1–2월' : '1–12월';
 let drawnYear = null;
-// US PhD application window for Spring/Fall 2029 entry (planning estimate, see the note under the table).
-const APPLY_FROM = '2028-08', APPLY_TO = '2028-12';
+// Fall 2028 PhD admission: apply during fall 2027, based on the preceding admissions cycle.
+const APPLY_FROM = '2027-09', APPLY_TO = '2027-12';
 const applying = key => key >= APPLY_FROM && key <= APPLY_TO;
+const admitting = key => key === '2028-09';
 // One continuous table for the whole period; it scrolls sideways instead of stacking a panel per year.
 function draw() {
   const allEvents = buildRoadmap(data, { includeOutside: true });
@@ -106,12 +107,12 @@ function draw() {
   const years = [2026,2027,2028,2029].filter(y => selectedYear === 'all' || String(y) === selectedYear);
   const today = new Intl.DateTimeFormat('sv-SE',{timeZone:'Asia/Seoul',year:'numeric',month:'2-digit'}).format(new Date());
   const columns = years.flatMap(y => monthsOf(y).map((m, i) => ({y, m, key: month(y, m), first: i === 0})));
-  const cls = (base, c) => base + (c.first ? ' rm-year-start' : '') + (applying(c.key) ? ' rm-apply' : '') + (c.key === today ? ' rm-current' : '');
+  const cls = (base, c) => base + (c.first ? ' rm-year-start' : '') + (applying(c.key) ? ' rm-apply' : '') + (admitting(c.key) ? ' rm-admit' : '') + (c.key === today ? ' rm-current' : '');
   const shown = events.filter(e => years.includes(Number(e.date.slice(0,4))));
   const yearRow = '<div class="rm-row rm-years-row"><div class="rm-label">연도</div>' + years.map(y => '<div class="rm-year-cell rm-year-start" style="grid-column:span ' + monthsOf(y).length + '"><div><strong>' + y + '</strong><span>' + rangeOf(y) + ' · ' + shown.filter(e => Number(e.date.slice(0,4)) === y).length + '개 일정</span></div></div>').join('') + '</div>';
   const monthRow = '<div class="rm-row rm-months"><div class="rm-label">일정 / 월</div>' + columns.map(c => '<div class="' + cls('rm-month', c) + '"' + (applying(c.key) ? ' title="미국 PhD 원서접수 기간 (예상)"' : '') + '><strong>' + c.m + '월</strong><span>' + phase(c.y, c.m) + '</span></div>').join('') + '</div>';
   const rows = '<div class="rm-row"><div class="rm-label rm-deadline"><strong>' + lane[0] + '</strong><small>' + lane[1] + '</small></div>' + columns.map(c => '<div class="' + cls('rm-cell', c) + '">' + shown.filter(e => e.date.slice(0,7) === c.key).map(e => card(e, results.get(e.acronym + '-' + e.year))).join('') + '</div>').join('') + '</div>';
-  const admissions = years.includes(2028) ? '<div class="rm-application"><span>PhD 원서접수 · 2028</span><p><b>Spring 2029</b> 8–10월 예상 · 모집 학교만 <span>→</span> <b>Fall 2029</b> 9–12월 예상 · 학교별 마감 확인</p></div>' : '';
+  const admissions = years.some(y => y === 2027 || y === 2028) ? '<div class="rm-application"><span>Fall 2028 미국 PhD 목표</span><p><b>2027.09–12</b> 원서접수 예상 <span>→</span> <b>2028 봄</b> 결과 예상 <span>→</span> <b>2028.08</b> 석사 3학기 조기졸업 <span>→</span> <b>2028.09</b> 입학 목표</p></div>' : '';
   const host = document.querySelector('#roadmap-years');
   const previous = host.querySelector('.rm-scroll');
   const keep = previous && drawnYear === selectedYear ? previous.scrollLeft : null;
@@ -132,7 +133,7 @@ export function renderRoadmap(conferences) {
   if (!host) return;
   data = conferences;
   if (!mounted) {
-    host.innerHTML = '<div class="rm-heading"><h2 id="roadmap-title">논문 투고 계획</h2></div><div class="rm-controls"><div class="rm-filters" role="group" aria-label="로드맵 분야"><button data-rm-category="all" aria-pressed="true">전체</button><button data-rm-category="ai" aria-pressed="false"><i class="rm-dot"></i>AI</button><button data-rm-category="robotics" aria-pressed="false"><i class="rm-dot"></i>Robotics</button><button data-rm-category="driving" aria-pressed="false"><i class="rm-dot"></i>Autonomous Driving</button></div><div class="rm-options"><label>연도 <select id="roadmap-year"><option value="all">전체 기간</option><option>2026</option><option>2027</option><option>2028</option><option>2029</option></select></label><label><input id="roadmap-confirmed" type="checkbox"> 공식 일정만</label></div></div><div class="rm-legend"><span class="rm-solid"></span><span>실선 · 공식 일정</span><span class="rm-dashed"></span><span>점선 · 예상 일정</span><span class="rm-apply-swatch"></span><span>분홍 · 2028.08–12 PhD 원서접수 예상</span><span class="rm-mark-swatch"></span><span>Shift+클릭 · 빨간 테두리 표시</span></div><div id="roadmap-years"></div><div class="rm-footnote"><p>공식 일정은 Papertrail 일정 데이터와 함께 갱신됩니다. 미공개 회차는 최근 일정의 월을 참고한 예상이며, 실제 제출 마감으로 사용하지 마세요. 카드를 누르면 공식 출처가 열리고, Shift+클릭하면 빨간 테두리로 표시됩니다. 표시는 이 브라우저에만 저장됩니다.</p><p>시간이 공개된 일정은 KST로 환산합니다. RSS 2차 제출은 1차 통과자만 대상입니다. 상시 투고 저널은 제외합니다.</p><p>석사: 2027년 전기 입학 → 2028년 8월 3학기 조기졸업 계획. 조기졸업 요건과 학위 수여 시점은 학교에 확인하세요. 2028년 가을 PhD 원서접수, 2029년 입학을 목표로 합니다. 접수 기간은 계획용 예상입니다.</p></div>';
+    host.innerHTML = '<div class="rm-heading"><h2 id="roadmap-title">논문 투고 계획</h2></div><div class="rm-controls"><div class="rm-filters" role="group" aria-label="로드맵 분야"><button data-rm-category="all" aria-pressed="true">전체</button><button data-rm-category="ai" aria-pressed="false"><i class="rm-dot"></i>AI</button><button data-rm-category="robotics" aria-pressed="false"><i class="rm-dot"></i>Robotics</button><button data-rm-category="driving" aria-pressed="false"><i class="rm-dot"></i>Autonomous Driving</button></div><div class="rm-options"><label>연도 <select id="roadmap-year"><option value="all">전체 기간</option><option>2026</option><option>2027</option><option>2028</option><option>2029</option></select></label><label><input id="roadmap-confirmed" type="checkbox"> 공식 일정만</label></div></div><div class="rm-legend"><span class="rm-solid"></span><span>실선 · 공식 일정</span><span class="rm-dashed"></span><span>점선 · 예상 일정</span><span class="rm-apply-swatch"></span><span>분홍 · 2027.09–12 PhD 원서접수 예상</span><span class="rm-admit-swatch"></span><span>파랑 · 2028.09 입학 목표</span><span class="rm-mark-swatch"></span><span>Shift+클릭 · 빨간 테두리 표시</span></div><div id="roadmap-years"></div><div class="rm-footnote"><p>공식 일정은 Papertrail 일정 데이터와 함께 갱신됩니다. 미공개 회차는 최근 일정의 월을 참고한 예상이며, 실제 제출 마감으로 사용하지 마세요. 카드를 누르면 공식 출처가 열리고, Shift+클릭하면 빨간 테두리로 표시됩니다. 표시는 이 브라우저에만 저장됩니다.</p><p>시간이 공개된 일정은 KST로 환산합니다. RSS 2차 제출은 1차 통과자만 대상입니다. 상시 투고 저널은 제외합니다.</p><p>석사: 2027년 전기 입학 → 2028년 8월 3학기 조기졸업 계획. 조기졸업 요건과 학위 수여 시점은 학교에 확인하세요. 2027년 가을 원서접수, 2028년 9월 미국 PhD 입학을 목표로 합니다. 2028년 모집 요강과 조기졸업 요건은 아직 확인이 필요합니다. 지원 기간은 <a href="https://www.csd.cs.cmu.edu/academics/doctoral/admissions" target="_blank" rel="noopener noreferrer">CMU의 이전 모집 일정</a>을 참고한 예상입니다.</p></div>';
     host.querySelectorAll('[data-rm-category]').forEach(button => button.addEventListener('click', () => { category = button.dataset.rmCategory; host.querySelectorAll('[data-rm-category]').forEach(b => b.setAttribute('aria-pressed', String(b === button))); draw(); }));
     host.querySelector('#roadmap-year').addEventListener('change', e => { selectedYear = e.target.value; draw(); });
     host.querySelector('#roadmap-confirmed').addEventListener('change', e => { confirmedOnly = e.target.checked; draw(); });
