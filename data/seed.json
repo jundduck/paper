@@ -698,8 +698,33 @@
       "status": "rolling",
       "verifiedAt": "2026-11-20T17:04:58.955Z",
       "notes": "2026-11-21 공식 저자 안내 재확인: 일반 논문은 연중 투고하며 첫 결정은 투고 후 3개월 이내를 목표로 합니다. 학회 발표 연계 신청과 특집호의 별도 마감은 일반 투고 마감과 구분해야 합니다.",
-      "acceptanceHistory": [],
-      "acceptanceNotes": "일반 투고 저널의 연도별 공개 채택률을 확인하지 못했습니다.",
+      "acceptanceHistory": [
+        {
+          "year": 2024,
+          "rate": 36,
+          "track": "전체 결정 기준",
+          "sourceUrl": "https://www.ieee-ras.org/publications/ra-l/faq/",
+          "sourceName": "IEEE RAS 공식 RA-L FAQ",
+          "accepted": null,
+          "submitted": null,
+          "approximate": false,
+          "checkedAt": "2026-11-21",
+          "notes": "Accept 결정 수 ÷ 전체 결정 수로 계산한 비율입니다(출처 정의). 투고·채택 편수는 공개되지 않았습니다."
+        },
+        {
+          "year": 2023,
+          "rate": 38,
+          "track": "전체 결정 기준",
+          "sourceUrl": "https://www.ieee-ras.org/publications/ra-l/faq/",
+          "sourceName": "IEEE RAS 공식 RA-L FAQ",
+          "accepted": null,
+          "submitted": null,
+          "approximate": false,
+          "checkedAt": "2026-11-21",
+          "notes": "Accept 결정 수 ÷ 전체 결정 수로 계산한 비율입니다(출처 정의). 투고·채택 편수는 공개되지 않았습니다."
+        }
+      ],
+      "acceptanceNotes": "저널이 공개한 과거 통계이며, 지금 투고하는 논문의 예상 채택률이 아닙니다. 마감 일정 자동 갱신과 별도로 확인한 자료입니다.",
       "manualReviewAt": "2026-11-20T17:04:58.955Z"
     },
     {
@@ -729,8 +754,22 @@
       "status": "rolling",
       "verifiedAt": "2026-11-20T17:04:58.955Z",
       "notes": "2026-11-21 저자 안내와 편집위원 심사 일정을 재확인했습니다. 일반 논문은 상시 투고하며, 정식 심사에 들어간 논문은 최초 투고일부터 약 3개월 내 결정을 목표로 합니다(보장된 기한 아님). 특집호·학회 발표 연계 및 수정본 제출 기한은 별도입니다.",
-      "acceptanceHistory": [],
-      "acceptanceNotes": "일반 투고 저널의 연도별 공개 채택률을 확인하지 못했습니다.",
+      "acceptanceHistory": [
+        {
+          "year": 2026,
+          "yearLabel": "2026 FAQ",
+          "rate": 20,
+          "track": "통상 수준",
+          "sourceUrl": "https://www.ieee-ras.org/publications/t-ro/t-ro-faq/",
+          "sourceName": "IEEE RAS 공식 T-RO FAQ",
+          "accepted": null,
+          "submitted": null,
+          "approximate": true,
+          "checkedAt": "2026-11-21",
+          "notes": "공식 FAQ가 연도별 수치 대신 \"통상 약 20%\"로 안내합니다. Accept 결정 수 ÷ 전체 결정 수 기준입니다."
+        }
+      ],
+      "acceptanceNotes": "저널이 공개한 과거 통계이며, 지금 투고하는 논문의 예상 채택률이 아닙니다. 마감 일정 자동 갱신과 별도로 확인한 자료입니다.",
       "manualReviewAt": "2026-11-20T17:04:58.955Z"
     },
     {
@@ -760,8 +799,21 @@
       "status": "rolling",
       "verifiedAt": "2026-10-06T13:13:36.750Z",
       "notes": "AAAS의 일반 투고 안내 페이지를 연결했습니다. 이 페이지는 기존 공모 안내이며, 최신 세부 정책과 특집호 마감은 저널 홈페이지의 저자 안내에서 확인하세요.",
-      "acceptanceHistory": [],
-      "acceptanceNotes": "일반 투고 저널의 연도별 공개 채택률을 확인하지 못했습니다.",
+      "acceptanceHistory": [
+        {
+          "year": 2025,
+          "rate": 7.8,
+          "track": "연구 논문",
+          "sourceUrl": "https://www.science.org/content/page/journal-metrics",
+          "sourceName": "AAAS 공식 Journal metrics",
+          "accepted": null,
+          "submitted": 859,
+          "approximate": false,
+          "checkedAt": "2026-11-21",
+          "notes": "2025년 전체 기준 · 투고 859편, Accept 결정 수 ÷ 최종 결정 수입니다. 연구 논문·리포트·리서치 리소스만 포함하고 리뷰는 제외합니다."
+        }
+      ],
+      "acceptanceNotes": "저널이 공개한 과거 통계이며, 지금 투고하는 논문의 예상 채택률이 아닙니다. 마감 일정 자동 갱신과 별도로 확인한 자료입니다.",
       "manualReviewAt": "2026-10-06T13:13:36.750Z"
     },
     {
@@ -791,8 +843,21 @@
       "status": "rolling",
       "verifiedAt": "2026-10-06T13:13:36.750Z",
       "notes": "공식 일반 논문 투고 공고의 변경을 확인합니다. 일반 투고는 상시이며 특집호는 별도 마감이 적용될 수 있습니다.",
-      "acceptanceHistory": [],
-      "acceptanceNotes": "일반 투고 저널의 연도별 공개 채택률을 확인하지 못했습니다.",
+      "acceptanceHistory": [
+        {
+          "year": 2011,
+          "rate": 18.1,
+          "track": "편집장 보고",
+          "sourceUrl": "https://ieeexplore.ieee.org/document/6674936/",
+          "sourceName": "TPAMI 편집장 사설 \"State of the Journal\"",
+          "accepted": 171,
+          "submitted": 944,
+          "approximate": false,
+          "checkedAt": "2026-11-21",
+          "notes": "2011년 투고 944편 중 171편 채택으로 계산한 값입니다. 이후 연도별 공식 채택률은 공개되지 않았습니다."
+        }
+      ],
+      "acceptanceNotes": "최근 공식 채택률이 공개되지 않아 마지막 공식 보고(2011)를 표시합니다. 흔히 언급되는 20~25%는 출처가 없는 비공식 추정이라 표시하지 않습니다.",
       "monitorScope": "rolling-journal",
       "manualReviewAt": "2026-10-06T13:13:36.750Z"
     },
