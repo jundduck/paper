@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-10-06T13:13:36.750Z",
+  "updatedAt": "2026-11-20T17:04:58.955Z",
   "conferences": [
     {
       "id": "neurips-2027",
@@ -59,31 +59,31 @@
     {
       "id": "icml-2027",
       "notification": {
-        "edition": 2026,
-        "date": "2026-04-30",
-        "sourceUrl": "https://icml.cc/Conferences/2026/Dates",
-        "sourceName": "ICML 2026 공식 Dates · Author Notification",
-        "checkedAt": "2026-09-21"
+        "edition": 2027,
+        "date": "2027-05-03",
+        "sourceUrl": "https://icml.cc/Conferences/2027/Dates",
+        "sourceName": "ICML 2027 공식 Dates · Author Notification (Final Decisions)",
+        "checkedAt": "2026-11-21"
       },
       "acronym": "ICML",
       "name": "International Conference on Machine Learning",
       "category": "ai",
       "type": "conference",
       "year": 2027,
-      "website": "https://icml.cc/",
-      "sourceUrl": "https://icml.cc/Conferences/FutureMeetings",
-      "sourceName": "공식 홈페이지",
-      "deadline": null,
-      "abstractDeadline": null,
+      "website": "https://icml.cc/Conferences/2027",
+      "sourceUrl": "https://icml.cc/Conferences/2027/CallForPapers",
+      "sourceName": "ICML 2027 공식 Call for Papers",
+      "deadline": "2027-01-22T23:59:00-12:00",
+      "abstractDeadline": "2027-01-14T23:59:00-12:00",
       "deadlineLabel": "논문 제출",
-      "timezone": null,
-      "deadlinePrecision": null,
-      "startDate": null,
-      "endDate": null,
-      "location": "남미 · 도시 미정",
-      "status": "pending",
-      "verifiedAt": "2026-10-06T13:13:36.750Z",
-      "notes": "2026-10-06 공식 Future Meetings 재확인: 2027년 남미 개최만 안내되어 있으며 도시·개최일·제출 마감은 미발표입니다.",
+      "timezone": "AoE",
+      "deadlinePrecision": "time",
+      "startDate": "2027-07-31",
+      "endDate": "2027-08-06",
+      "location": "브라질 리우데자네이루 · Riocentro",
+      "status": "announced",
+      "verifiedAt": "2026-11-20T17:04:58.955Z",
+      "notes": "공식 CFP 기준 초록 마감은 2027-01-14 23:59 AoE, 최종 논문 마감은 2027-01-22 23:59 AoE입니다. 최종 결과는 5월 3일이며, 개최는 7월 31일~8월 6일 Riocentro입니다(본 학회 8월 2~4일).",
       "previousDeadline": {
         "edition": 2026,
         "date": "2026-01-28",
@@ -108,8 +108,7 @@
         }
       ],
       "acceptanceNotes": "과거 공개 통계이며 현재 회차의 예상 채택률이 아닙니다. 마감 일정 자동 갱신과 별도로 확인한 자료입니다.",
-      "manualReviewAt": "2026-10-06T13:13:36.750Z",
-      "monitorScope": "year-line"
+      "manualReviewAt": "2026-11-20T17:04:58.955Z"
     },
     {
       "id": "iccv-2027",
@@ -243,11 +242,11 @@
       "timezone": "AoE",
       "deadlinePrecision": "time",
       "startDate": "2027-06-20",
-      "endDate": "2027-06-25",
+      "endDate": "2027-06-24",
       "location": "미국 시애틀",
       "status": "announced",
-      "verifiedAt": "2026-10-06T13:13:36.750Z",
-      "notes": "11월 10일은 논문 등록, 11월 16일은 본문 제출 마감입니다. 공식 페이지의 AoE 날짜를 표시합니다. 워크숍 6월 20–21일, 본 학회 6월 22–25일.",
+      "verifiedAt": "2026-11-20T17:04:58.955Z",
+      "notes": "11월 10일은 논문 등록, 11월 16일은 본문 제출 마감입니다. 공식 Dates 페이지의 AoE 날짜를 표시합니다. 워크숍·튜토리얼 6월 20–21일, 본 학회 6월 22–24일입니다.",
       "acceptanceHistory": [
         {
           "year": 2025,
@@ -263,7 +262,7 @@
         }
       ],
       "acceptanceNotes": "과거 공개 통계이며 현재 회차의 예상 채택률이 아닙니다. 마감 일정 자동 갱신과 별도로 확인한 자료입니다.",
-      "manualReviewAt": "2026-10-06T13:13:36.750Z"
+      "manualReviewAt": "2026-11-20T17:04:58.955Z"
     },
     {
       "id": "iclr-2028",
@@ -291,8 +290,8 @@
       "endDate": null,
       "location": null,
       "status": "pending",
-      "verifiedAt": "2026-10-06T13:13:36.750Z",
-      "notes": "2028년 회차의 공식 제출 마감과 개최 일정 발표를 기다리고 있습니다.",
+      "verifiedAt": "2026-11-20T17:04:58.955Z",
+      "notes": "2026-11-21 공식 Future Meetings를 재확인했으며 현재 ICLR 2027 개최 지역까지만 안내되어 있습니다. ICLR 2028 제출 마감과 개최 일정은 미발표입니다.",
       "previousDeadline": {
         "edition": 2027,
         "date": "2026-09-25",
@@ -320,7 +319,7 @@
       "previousIds": [
         "iclr-2027"
       ],
-      "manualReviewAt": "2026-10-06T13:13:36.750Z"
+      "manualReviewAt": "2026-11-20T17:04:58.955Z"
     },
     {
       "id": "corl-2027",
@@ -390,8 +389,8 @@
       "endDate": null,
       "location": null,
       "status": "pending",
-      "verifiedAt": "2026-10-06T13:13:36.750Z",
-      "notes": "2028년 회차의 공식 제출 마감과 개최 일정 발표를 기다리고 있습니다.",
+      "verifiedAt": "2026-11-20T17:04:58.955Z",
+      "notes": "2026-11-21 공식 AAAI 학회 페이지를 재확인했으며 현재 AAAI-27 일정까지만 발표되어 있습니다. AAAI-28 제출 마감과 개최 일정은 미발표입니다.",
       "previousDeadline": {
         "edition": 2027,
         "date": "2026-07-28",
@@ -419,7 +418,7 @@
       "previousIds": [
         "aaai-2027"
       ],
-      "manualReviewAt": "2026-10-06T13:13:36.750Z"
+      "manualReviewAt": "2026-11-20T17:04:58.955Z"
     },
     {
       "id": "icra-2028",
@@ -491,12 +490,12 @@
       "deadlineLabel": "논문 제출",
       "timezone": null,
       "deadlinePrecision": "date",
-      "startDate": "2027-09-26",
+      "startDate": "2027-09-27",
       "endDate": "2027-10-01",
       "location": "이탈리아 피렌체 · Fortezza da Basso",
       "status": "announced",
-      "verifiedAt": "2026-10-06T13:13:36.750Z",
-      "notes": "2026-10-06 재확인: IEEE RAS 공식 행사 페이지의 제출 마감은 2027-03-01이며 시각·시간대는 미발표입니다. 개최일은 공식 홈페이지와 RAS 행사 페이지가 일치하는 09-26~10-01을 사용합니다. PaperCept의 09-25~30 표기와 차이가 있어 원문 출처를 구분했습니다.",
+      "verifiedAt": "2026-11-20T17:04:58.955Z",
+      "notes": "2026-11-21 재확인: IEEE RAS 공식 행사 페이지의 제출 마감은 2027-03-01이며 시각·시간대는 미발표입니다. 공식 회차 홈페이지와 IEEE RAS 행사 페이지 모두 개최일을 09-27~10-01로 안내합니다. PaperCept 목록의 09-25~30 표기는 오래된 값이라 사용하지 않습니다.",
       "acceptanceHistory": [
         {
           "year": 2025,
@@ -512,7 +511,7 @@
         }
       ],
       "acceptanceNotes": "과거 공개 통계이며 현재 회차의 예상 채택률이 아닙니다. 마감 일정 자동 갱신과 별도로 확인한 자료입니다.",
-      "manualReviewAt": "2026-10-06T13:13:36.750Z"
+      "manualReviewAt": "2026-11-20T17:04:58.955Z"
     },
     {
       "id": "rss-2027",
@@ -521,7 +520,7 @@
         "date": "2027-04-30",
         "sourceUrl": "https://roboticsconference.org/information/cfp/",
         "sourceName": "RSS 2027 공식 CFP · 최종 결과 발표 (23:59 AoE)",
-        "checkedAt": "2026-10-06"
+        "checkedAt": "2026-11-21"
       },
       "acronym": "RSS",
       "name": "Robotics: Science and Systems",
@@ -665,7 +664,7 @@
         "label": "1차 결정 · 투고 후 3개월 이내",
         "sourceUrl": "https://www.ieee-ras.org/publications/ra-l/ra-l-information-for-authors/",
         "sourceName": "IEEE RA-L 공식 Review Procedure",
-        "checkedAt": "2026-10-06"
+        "checkedAt": "2026-11-21"
       },
       "acronym": "RA-L",
       "name": "IEEE Robotics and Automation Letters",
@@ -684,11 +683,11 @@
       "endDate": null,
       "location": null,
       "status": "rolling",
-      "verifiedAt": "2026-10-06T13:13:36.750Z",
-      "notes": "일반 논문은 연중 투고하는 저널입니다. 학회 발표 연계 신청과 특집호의 별도 마감은 일반 투고 마감과 구분해야 합니다.",
+      "verifiedAt": "2026-11-20T17:04:58.955Z",
+      "notes": "2026-11-21 공식 저자 안내 재확인: 일반 논문은 연중 투고하며 첫 결정은 투고 후 3개월 이내를 목표로 합니다. 학회 발표 연계 신청과 특집호의 별도 마감은 일반 투고 마감과 구분해야 합니다.",
       "acceptanceHistory": [],
       "acceptanceNotes": "일반 투고 저널의 연도별 공개 채택률을 확인하지 못했습니다.",
-      "manualReviewAt": "2026-10-06T13:13:36.750Z"
+      "manualReviewAt": "2026-11-20T17:04:58.955Z"
     },
     {
       "id": "tro",
@@ -696,7 +695,7 @@
         "label": "정식 심사 결정 목표 · 약 3개월",
         "sourceUrl": "https://www.ieee-ras.org/publications/t-ro/information-for-associate-editors/",
         "sourceName": "IEEE T-RO 공식 Review Timeline",
-        "checkedAt": "2026-10-06"
+        "checkedAt": "2026-11-21"
       },
       "acronym": "TRO",
       "name": "IEEE Transactions on Robotics",
@@ -715,11 +714,11 @@
       "endDate": null,
       "location": null,
       "status": "rolling",
-      "verifiedAt": "2026-10-06T13:13:36.750Z",
-      "notes": "2026-10-06 저자 안내와 Associate Editors 심사 일정을 재확인했습니다. 일반 논문은 상시 투고하며, 정식 심사에 들어간 논문은 최초 투고일부터 약 3개월 내 결정을 목표로 합니다(보장된 기한 아님). 특집호·학회 발표 연계 및 수정본 제출 기한은 별도입니다.",
+      "verifiedAt": "2026-11-20T17:04:58.955Z",
+      "notes": "2026-11-21 저자 안내와 편집위원 심사 일정을 재확인했습니다. 일반 논문은 상시 투고하며, 정식 심사에 들어간 논문은 최초 투고일부터 약 3개월 내 결정을 목표로 합니다(보장된 기한 아님). 특집호·학회 발표 연계 및 수정본 제출 기한은 별도입니다.",
       "acceptanceHistory": [],
       "acceptanceNotes": "일반 투고 저널의 연도별 공개 채택률을 확인하지 못했습니다.",
-      "manualReviewAt": "2026-10-06T13:13:36.750Z"
+      "manualReviewAt": "2026-11-20T17:04:58.955Z"
     },
     {
       "id": "science-robotics",
@@ -802,17 +801,17 @@
       "sourceUrl": "https://ieee-iv.org/2027/intelligent-vehicles-symposium-2027-perth-australia/",
       "monitorUrl": "https://ieee-iv.org/2027/intelligent-vehicles-symposium-2027-perth-australia/?amp=1",
       "sourceName": "공식 2027 홈페이지",
-      "deadline": "2026-11-15",
+      "deadline": "2026-11-15T23:59:00-08:00",
       "abstractDeadline": null,
       "deadlineLabel": "논문 제출",
-      "timezone": null,
-      "deadlinePrecision": "date",
+      "timezone": "UTC-8",
+      "deadlinePrecision": "time",
       "startDate": "2027-06-15",
       "endDate": "2027-06-18",
       "location": "호주 퍼스 · Crown Perth",
       "status": "announced",
-      "verifiedAt": "2026-10-06T13:13:36.750Z",
-      "notes": "공식 2027 홈페이지에서 제출 마감, 결과 발표일, 개최 기간과 Crown Perth 행사장을 재확인했습니다. 마감 시각과 시간대는 아직 발표되지 않았습니다.",
+      "verifiedAt": "2026-11-20T17:04:58.955Z",
+      "notes": "공식 2027 홈페이지에서 논문 제출 마감(2026-11-15 23:59 Pacific Time, UTC-8), 결과 발표일, 개최 기간과 Crown Perth 행사장을 재확인했습니다.",
       "acceptanceHistory": [
         {
           "year": 2025,
@@ -828,7 +827,7 @@
         }
       ],
       "acceptanceNotes": "과거 공개 통계이며 현재 회차의 예상 채택률이 아닙니다. 마감 일정 자동 갱신과 별도로 확인한 자료입니다.",
-      "manualReviewAt": "2026-10-06T13:13:36.750Z"
+      "manualReviewAt": "2026-11-20T17:04:58.955Z"
     },
     {
       "id": "itsc-2027",

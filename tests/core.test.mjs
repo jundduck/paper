@@ -56,12 +56,20 @@ test('ICRA extension, AAAI preceding dates, and IROS reversed table labels parse
 });
 
 test('CVPR conference range includes workshops and exact official deadline instant', () => {
-  const html = `<h1>CVPR 2027 Meeting Dates</h1><table><tr><td>Workshops and Tutorials</td><td>June 20-21, 2027</td></tr><tr><td>Main Conference Sessions</td><td>June 22-25, 2027</td></tr></table><h2>Dates and Deadlines</h2><p>Final Decisions |</p><p>Feb 25 '27 (Anywhere on Earth) |</p><p>Submission Deadline Nov 16 '26 (Anywhere on Earth)<script>var submission_deadline_1 = "2026/11/17 11:59:59 UTC";</script></p>`;
+  const html = `<h1>CVPR 2027 Meeting Dates</h1><table><tr><td>Workshops and Tutorials</td><td>June 20-21, 2027</td></tr><tr><td>Main Conference Sessions</td><td>June 22-24, 2027</td></tr></table><h2>Dates and Deadlines</h2><p>Final Decisions |</p><p>Feb 25 '27 (Anywhere on Earth) |</p><p>Submission Deadline Nov 16 '26 (Anywhere on Earth)<script>var submission_deadline_1 = "2026/11/17 11:59:59 UTC";</script></p>`;
   const result = parseConference(html, conference({ acronym: 'CVPR' }));
   assert.equal(result.patch.deadline, '2026-11-16T23:59:59-12:00');
   assert.equal(result.patch.notificationDate, '2027-02-25');
   assert.equal(result.patch.startDate, '2027-06-20');
-  assert.equal(result.patch.endDate, '2027-06-25');
+  assert.equal(result.patch.endDate, '2027-06-24');
+});
+
+test('ICML edition URL parses exact AoE deadlines from its official CFP', () => {
+  const html = `<title>ICML 2027 Call for Papers</title><h1>ICML 2027 Call For Papers</h1><p>Abstract submission deadline: January 14, 2027 11:59 PM AOE</p><p>Full paper submission deadline: January 22, 2027 11:59 PM AOE</p><p>Author Notification: May 3, 2027</p>`;
+  const result = parseConference(html, conference({ acronym: 'ICML', sourceUrl: 'https://icml.cc/Conferences/2027/CallForPapers' }));
+  assert.equal(result.patch.abstractDeadline, '2027-01-14T23:59:00-12:00');
+  assert.equal(result.patch.deadline, '2027-01-22T23:59:00-12:00');
+  assert.equal(result.patch.notificationDate, '2027-05-03');
 });
 
 test('HTML normalization keeps inline split dates and excludes scripts from change fingerprints', () => {
