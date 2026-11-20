@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-11-20T17:04:58.955Z",
+  "updatedAt": "2026-11-20T17:11:03.455Z",
   "conferences": [
     {
       "id": "neurips-2027",
@@ -220,33 +220,42 @@
       "manualReviewAt": "2026-10-06T13:13:36.750Z"
     },
     {
-      "id": "cvpr-2027",
+      "id": "cvpr-2028",
       "notification": {
         "edition": 2027,
         "date": "2027-02-25",
         "sourceUrl": "https://cvpr.thecvf.com/Conferences/2027/Dates",
         "sourceName": "CVPR 2027 공식 Dates · Final Decisions",
-        "checkedAt": "2026-09-21"
+        "checkedAt": "2026-11-21"
       },
       "acronym": "CVPR",
       "name": "IEEE/CVF Conference on Computer Vision and Pattern Recognition",
       "category": "ai",
       "type": "conference",
-      "year": 2027,
+      "year": 2028,
       "website": "https://cvpr.thecvf.com/",
-      "sourceUrl": "https://cvpr.thecvf.com/Conferences/2027/Dates",
-      "sourceName": "공식 Dates & Deadlines",
-      "deadline": "2026-11-16T23:59:59-12:00",
-      "abstractDeadline": "2026-11-10T23:59:59-12:00",
+      "sourceUrl": "https://www.thecvf.com/?page_id=100",
+      "sourceName": "CVF 공식 개최지 목록",
+      "deadline": null,
+      "abstractDeadline": null,
       "deadlineLabel": "논문 제출",
-      "timezone": "AoE",
-      "deadlinePrecision": "time",
-      "startDate": "2027-06-20",
-      "endDate": "2027-06-24",
-      "location": "미국 시애틀",
-      "status": "announced",
-      "verifiedAt": "2026-11-20T17:04:58.955Z",
-      "notes": "11월 10일은 논문 등록, 11월 16일은 본문 제출 마감입니다. 공식 Dates 페이지의 AoE 날짜를 표시합니다. 워크숍·튜토리얼 6월 20–21일, 본 학회 6월 22–24일입니다.",
+      "timezone": null,
+      "deadlinePrecision": null,
+      "startDate": null,
+      "endDate": null,
+      "location": "미국 샌안토니오",
+      "status": "pending",
+      "verifiedAt": "2026-11-20T17:11:03.455Z",
+      "notes": "CVF 공식 학회 목록에서 CVPR 2028 개최 도시가 미국 샌안토니오로 발표되었습니다. 정확한 개최 기간과 논문 등록·제출 마감은 아직 발표되지 않았습니다.",
+      "previousDeadline": {
+        "edition": 2027,
+        "date": "2026-11-16",
+        "time": "23:59",
+        "timezone": "AoE",
+        "sourceUrl": "https://cvpr.thecvf.com/Conferences/2027/CallForPapers",
+        "sourceName": "CVPR 2027 공식 Call for Papers",
+        "checkedAt": "2026-11-21"
+      },
       "acceptanceHistory": [
         {
           "year": 2025,
@@ -262,7 +271,11 @@
         }
       ],
       "acceptanceNotes": "과거 공개 통계이며 현재 회차의 예상 채택률이 아닙니다. 마감 일정 자동 갱신과 별도로 확인한 자료입니다.",
-      "manualReviewAt": "2026-11-20T17:04:58.955Z"
+      "manualReviewAt": "2026-11-20T17:11:03.455Z",
+      "monitorScope": "year-line",
+      "previousIds": [
+        "cvpr-2027"
+      ]
     },
     {
       "id": "iclr-2028",
@@ -784,34 +797,43 @@
       "manualReviewAt": "2026-10-06T13:13:36.750Z"
     },
     {
-      "id": "iv-2027",
+      "id": "iv-2028",
       "notification": {
         "edition": 2027,
         "date": "2027-01-15",
         "sourceUrl": "https://ieee-iv.org/2027/intelligent-vehicles-symposium-2027-perth-australia/",
         "sourceName": "IEEE IV 2027 공식 Important Dates · Conference Paper Notification",
-        "checkedAt": "2026-09-21"
+        "checkedAt": "2026-11-21"
       },
       "acronym": "IV",
       "name": "IEEE Intelligent Vehicles Symposium",
       "category": "driving",
       "type": "conference",
-      "year": 2027,
-      "website": "https://ieee-iv.org/2027/",
-      "sourceUrl": "https://ieee-iv.org/2027/intelligent-vehicles-symposium-2027-perth-australia/",
-      "monitorUrl": "https://ieee-iv.org/2027/intelligent-vehicles-symposium-2027-perth-australia/?amp=1",
-      "sourceName": "공식 2027 홈페이지",
-      "deadline": "2026-11-15T23:59:00-08:00",
+      "year": 2028,
+      "website": "https://ieee-iv.org/",
+      "sourceUrl": "https://ieee-iv.org/",
+      "monitorUrl": "https://ieee-iv.org/?amp=1",
+      "sourceName": "IEEE IV 공식 홈페이지",
+      "deadline": null,
       "abstractDeadline": null,
       "deadlineLabel": "논문 제출",
-      "timezone": "UTC-8",
-      "deadlinePrecision": "time",
-      "startDate": "2027-06-15",
-      "endDate": "2027-06-18",
-      "location": "호주 퍼스 · Crown Perth",
-      "status": "announced",
-      "verifiedAt": "2026-11-20T17:04:58.955Z",
-      "notes": "공식 2027 홈페이지에서 논문 제출 마감(2026-11-15 23:59 Pacific Time, UTC-8), 결과 발표일, 개최 기간과 Crown Perth 행사장을 재확인했습니다.",
+      "timezone": null,
+      "deadlinePrecision": null,
+      "startDate": null,
+      "endDate": null,
+      "location": null,
+      "status": "pending",
+      "verifiedAt": "2026-11-20T17:11:03.455Z",
+      "notes": "2026-11-21 공식 IEEE IV 홈페이지를 재확인했으며 현재 IV 2027 회차까지만 안내되어 있습니다. IV 2028 제출 마감과 개최 일정은 미발표입니다.",
+      "previousDeadline": {
+        "edition": 2027,
+        "date": "2026-11-15",
+        "time": "23:59",
+        "timezone": "UTC-8",
+        "sourceUrl": "https://ieee-iv.org/2027/intelligent-vehicles-symposium-2027-perth-australia/",
+        "sourceName": "IEEE IV 2027 공식 Important Dates",
+        "checkedAt": "2026-11-21"
+      },
       "acceptanceHistory": [
         {
           "year": 2025,
@@ -827,7 +849,11 @@
         }
       ],
       "acceptanceNotes": "과거 공개 통계이며 현재 회차의 예상 채택률이 아닙니다. 마감 일정 자동 갱신과 별도로 확인한 자료입니다.",
-      "manualReviewAt": "2026-11-20T17:04:58.955Z"
+      "manualReviewAt": "2026-11-20T17:11:03.455Z",
+      "monitorScope": "year-line",
+      "previousIds": [
+        "iv-2027"
+      ]
     },
     {
       "id": "itsc-2027",

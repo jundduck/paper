@@ -103,6 +103,21 @@ test('every venue has sourced result timing without presenting prior editions as
   }
 });
 
+test('active seed advances expired conference editions without inventing future deadlines', async () => {
+  const seed = JSON.parse(await readFile(new URL('../data/seed.json', import.meta.url), 'utf8'));
+  const checkedAt = Date.parse(seed.updatedAt);
+  const conferences = seed.conferences.filter(row => row.type === 'conference');
+  assert.ok(conferences.every(row => !row.deadline || Date.parse(row.deadline) > checkedAt), 'expired conference edition remains active');
+  for (const [currentId, previousId] of [['cvpr-2028', 'cvpr-2027'], ['iv-2028', 'iv-2027']]) {
+    const row = conferences.find(conference => conference.id === currentId);
+    assert.ok(row, `${currentId} is missing`);
+    assert.equal(row.deadline, null);
+    assert.equal(row.status, 'pending');
+    assert.ok(row.previousIds.includes(previousId));
+    assert.equal(row.previousDeadline.edition, 2027);
+  }
+});
+
 test('failed fetch preserves verified fields, concurrent refresh shares one run, cache persists', async t => {
   const dir = await mkdtemp(join(tmpdir(), 'paper-store-'));
   t.after(() => rm(dir, { recursive: true, force: true }));
