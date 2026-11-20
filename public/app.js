@@ -75,13 +75,27 @@ function badge(c) { return `<span class="category-badge ${escapeHtml(c.category)
 function sourceWarning(c) { return c.syncStatus === 'error' ? '출처 연결 실패 · 마지막 확인값' : c.syncStatus === 'review' ? '원문 변경 감지 · 재확인 필요' : !c.verifiedAt ? '원문 확인 필요' : ''; }
 function showToast(message) { clearTimeout(toastTimer); $('#toast').textContent = message; $('#toast').hidden = false; toastTimer = setTimeout(() => { $('#toast').hidden = true; }, 4500); }
 
+// Day used only for ordering: the official deadline, or for an unannounced edition the
+// previous edition's deadline shifted by the edition gap (annual +1y, biennial ICCV/ECCV +2y).
+function sortDay(c) {
+  if (c.deadline) return dateOnly(c.deadline) ? c.deadline : dateKey(c.deadline);
+  const previous = c.previousDeadline;
+  const year = Number(c.year);
+  if (!previous || !Number.isInteger(previous.edition) || !Number.isInteger(year) || !dateOnly(previous.date)) return '';
+  return `${Number(previous.date.slice(0, 4)) + year - previous.edition}${previous.date.slice(4)}`;
+}
 function filteredConferences() {
   return state.conferences.filter(c => (state.nav !== 'saved' || state.saved.has(c.id)) && (state.category === 'all' || state.category === c.category) && (state.year === 'all' || String(c.year) === state.year) && (state.status === 'all' || statusOf(c) === state.status) && `${c.acronym} ${c.name} ${c.year ?? ''} ${c.location ?? ''}`.toLowerCase().includes(state.search.toLowerCase())).sort((a, b) => {
-    const rank = { upcoming: 0, pending: 1, closed: 2, rolling: 3 };
+    const rank = { upcoming: 0, pending: 0, closed: 1, rolling: 2 };
     const group = rank[statusOf(a)] - rank[statusOf(b)];
     if (group) return group;
     const direction = state.reverse ? -1 : 1;
-    if (a.deadline && b.deadline) return (Date.parse(a.deadline) - Date.parse(b.deadline)) * direction;
+    const dayA = sortDay(a);
+    const dayB = sortDay(b);
+    if (dayA !== dayB) return !dayA ? 1 : !dayB ? -1 : (dayA < dayB ? -1 : 1) * direction;
+    if (Boolean(a.deadline) !== Boolean(b.deadline)) return a.deadline ? -1 : 1;
+    const exact = a.deadline && b.deadline ? Date.parse(a.deadline) - Date.parse(b.deadline) : 0;
+    if (exact) return exact * direction;
     return a.acronym.localeCompare(b.acronym) * direction;
   });
 }
