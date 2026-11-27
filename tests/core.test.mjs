@@ -116,6 +116,9 @@ test('active seed advances expired conference editions without inventing future 
     assert.ok(row.previousIds.includes(previousId));
     assert.equal(row.previousDeadline.edition, 2027);
   }
+  const iv = conferences.find(row => row.id === 'iv-2028');
+  assert.deepEqual([iv.startDate, iv.endDate, iv.location], ['2028-06-27', '2028-06-30', '스페인 바르셀로나']);
+  assert.equal(iv.monitorUrl, 'https://ieee-itss.org/conf/iv/');
 });
 
 test('failed fetch preserves verified fields, concurrent refresh shares one run, cache persists', async t => {

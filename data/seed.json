@@ -877,19 +877,19 @@
       "year": 2028,
       "website": "https://ieee-iv.org/2027/intelligent-vehicles-symposium-2027-perth-australia/",
       "sourceUrl": "https://ieee-iv.org/",
-      "monitorUrl": "https://ieee-iv.org/?amp=1",
+      "monitorUrl": "https://ieee-itss.org/conf/iv/",
       "sourceName": "IEEE IV 공식 홈페이지",
       "deadline": null,
       "abstractDeadline": null,
       "deadlineLabel": "논문 제출",
       "timezone": null,
       "deadlinePrecision": null,
-      "startDate": null,
-      "endDate": null,
-      "location": null,
+      "startDate": "2028-06-27",
+      "endDate": "2028-06-30",
+      "location": "스페인 바르셀로나",
       "status": "pending",
-      "verifiedAt": "2026-11-20T17:11:03.455Z",
-      "notes": "2026-11-21 공식 IEEE IV 홈페이지를 재확인했으며 현재 IV 2027 회차까지만 안내되어 있습니다. IV 2028 제출 마감과 개최 일정은 미발표입니다.",
+      "verifiedAt": "2026-11-27T15:00:00.000Z",
+      "notes": "2026-11-28 IEEE ITSS 공식 IV 시리즈 페이지에서 IV 2028 개최 일정(6월 27~30일)과 바르셀로나 개최를 확인했습니다. IV 2028 제출 마감은 아직 미발표이며, 공식 2028 행사 홈페이지가 열리기 전까지 2027 홈페이지를 연결합니다.",
       "previousDeadline": {
         "edition": 2027,
         "date": "2026-11-15",
@@ -914,7 +914,7 @@
         }
       ],
       "acceptanceNotes": "과거 공개 통계이며 현재 회차의 예상 채택률이 아닙니다. 마감 일정 자동 갱신과 별도로 확인한 자료입니다.",
-      "manualReviewAt": "2026-11-20T17:11:03.455Z",
+      "manualReviewAt": "2026-11-27T15:00:00.000Z",
       "monitorScope": "year-line",
       "previousIds": [
         "iv-2027"
@@ -936,7 +936,7 @@
       "year": 2027,
       "website": "https://ieee-itsc.org/2027/",
       "sourceUrl": "https://ieee-itsc.org/2027/",
-      "monitorUrl": "https://ieee-itsc.org/2027/?amp=1",
+      "monitorUrl": "https://ieee-itss.org/conf/itsc/",
       "sourceName": "IEEE ITSC 2027 공식 홈페이지",
       "deadline": "2027-03-01",
       "abstractDeadline": null,
@@ -947,8 +947,8 @@
       "endDate": "2027-09-24",
       "location": "미국 보스턴",
       "status": "announced",
-      "verifiedAt": "2026-10-06T13:13:36.750Z",
-      "notes": "공식 2027 홈페이지에서 논문 제출 마감, 결과 발표일과 개최 기간을 확인했습니다. 마감 시각과 시간대 및 구체 행사장은 아직 발표되지 않았습니다.",
+      "verifiedAt": "2026-11-27T15:00:00.000Z",
+      "notes": "2026-11-28 IEEE ITSS 공식 ITSC 시리즈 페이지와 2026년 10월 공식 뉴스레터에서 2027년 보스턴 개최를 재확인했습니다. 논문 제출 마감과 결과 발표일은 기존 공식 2027 홈페이지 확인값을 유지하며, 마감 시각과 시간대 및 구체 행사장은 아직 발표되지 않았습니다.",
       "previousDeadline": {
         "edition": 2026,
         "date": "2026-03-01",
@@ -960,7 +960,8 @@
       },
       "acceptanceHistory": [],
       "acceptanceNotes": "신뢰할 수 있는 연도별 공개 채택률을 아직 확인하지 못했습니다.",
-      "manualReviewAt": "2026-10-06T13:13:36.750Z"
+      "manualReviewAt": "2026-11-27T15:00:00.000Z",
+      "monitorScope": "year-line"
     }
   ]
 }
