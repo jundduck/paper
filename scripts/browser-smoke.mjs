@@ -92,6 +92,7 @@ try {
   check('Full conference names wrap without ellipsis', await evaluate("[...document.querySelectorAll('.venue-name')].every(name => getComputedStyle(name).whiteSpace === 'normal' && getComputedStyle(name).textOverflow === 'clip')"));
   check('English robotics heading', await evaluate("document.querySelector('h1').textContent === 'Robotics Conferences & Journals'"));
   check('Intro subtitle and top breadcrumb removed', await evaluate("document.querySelector('.intro p') === null && document.querySelector('.breadcrumb') === null"));
+  check('Refresh button uses English label', await evaluate("document.querySelector('#refresh').textContent.trim() === 'Refresh'"));
   check('Desktop has no page overflow', await evaluate('document.documentElement.scrollWidth <= innerWidth'));
   check('Selected-conference countdown banner removed', await evaluate("document.querySelector('#next-deadline') === null && document.querySelector('.countdown') === null"));
   check('Every conference name opens an official HTTPS homepage', await evaluate("document.querySelectorAll('[data-venue-id]').length === 19 && document.querySelectorAll('.venue-name[href]').length === 19 && [...document.querySelectorAll('[data-venue-id], .venue-name[href]')].every(link => link.href.startsWith('https://') && link.target === '_blank')"));
