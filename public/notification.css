@@ -11,6 +11,7 @@ a.milestone-row:hover .milestone-label,a.milestone-row:hover .milestone-value{te
 .venue-link svg{width:12px;height:12px;color:#94a3b8}
 .venue-link:hover svg{color:currentColor}
 .venue-name{display:block}.venue-name:hover{color:var(--area);text-decoration:underline}
+.panel-toolbar.list-only{justify-content:flex-end}
 @media(max-width:600px){
   tbody tr{grid-template-columns:minmax(0,1fr)}
   td:first-child{grid-column:1;grid-row:1}

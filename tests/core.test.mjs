@@ -4,7 +4,6 @@ import { mkdtemp, writeFile, readFile, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { parseExplicitDate, parseConference, stripHtml } from '../lib/parsers.mjs';
-import { createCalendar } from '../lib/calendar.mjs';
 import { ConferenceStore, fetchSource } from '../lib/sync.mjs';
 import { createApp } from '../server.mjs';
 
@@ -74,16 +73,6 @@ test('ICML edition URL parses exact AoE deadlines from its official CFP', () => 
 
 test('HTML normalization keeps inline split dates and excludes scripts from change fingerprints', () => {
   assert.equal(stripHtml('<p><span>202</span><span>7</span> <b>ICRA</b></p><script nonce="dynamic">1</script>'), '2027 ICRA');
-});
-
-test('calendar converts AoE to UTC, excludes rolling/unknown, uses exclusive all-day end, escapes/folds UTF8', () => {
-  const rows = [conference({ name: '한글 일정 '.repeat(30), startDate: '2027-04-26', endDate: '2027-04-30', location: 'Seoul, COEX; Hall' }), conference({ id: 'rolling', type: 'journal', status: 'rolling' }), conference({ id: 'unknown', deadline: null })];
-  const ics = createCalendar(rows, new Date('2026-09-17T00:00:00Z'));
-  assert.match(ics, /DTSTART:20260926T115959Z/);
-  assert.match(ics, /DTEND;VALUE=DATE:20270501/);
-  assert.match(ics, /LOCATION:Seoul\\, COEX\\; Hall/);
-  assert.equal((ics.match(/BEGIN:VEVENT/g) ?? []).length, 2);
-  assert.ok(ics.split('\r\n').every(line => Buffer.byteLength(line) <= 75));
 });
 
 test('every venue has sourced result timing without presenting prior editions as current', async () => {
@@ -221,7 +210,7 @@ test('fetch rejects redirected host changes and oversized responses', async () =
   await assert.rejects(fetchSource('https://iclr.cc/', { fetchImpl: async () => new Response('x', { headers: { 'content-length': '3000000', 'content-type': 'text/html' } }) }), /크기/);
 });
 
-test('HTTP APIs deliver data/calendar, protect static paths, reject foreign refresh origins, enforce cooldown', async t => {
+test('HTTP APIs deliver data, protect static paths, reject foreign refresh origins, enforce cooldown', async t => {
   const dir = await mkdtemp(join(tmpdir(), 'paper-http-'));
   t.after(() => rm(dir, { recursive: true, force: true }));
   await writeFile(join(dir, 'index.html'), '<h1>Paper</h1>');
@@ -231,7 +220,7 @@ test('HTTP APIs deliver data/calendar, protect static paths, reject foreign refr
   t.after(() => new Promise(resolve => app.close(resolve)));
   const base = `http://127.0.0.1:${app.address().port}`;
   assert.equal((await fetch(`${base}/api/conferences`).then(r => r.json())).conferences.length, 1);
-  assert.match(await fetch(`${base}/api/calendar.ics`).then(r => r.text()), /BEGIN:VCALENDAR/);
+  assert.equal((await fetch(`${base}/api/calendar.ics`)).status, 404);
   assert.equal((await fetch(`${base}/api/refresh`, { method: 'POST', headers: { origin: 'https://evil.example' } })).status, 403);
   assert.equal((await fetch(`${base}/api/refresh`, { method: 'POST', headers: { origin: 'https://paper.example' } })).status, 202);
   assert.equal((await fetch(`${base}/api/refresh`, { method: 'POST', headers: { origin: 'https://paper.example' } })).status, 429);

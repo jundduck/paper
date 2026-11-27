@@ -3,7 +3,6 @@ import { readFile, realpath } from 'node:fs/promises';
 import { dirname, resolve, sep, extname } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { ConferenceStore } from './lib/sync.mjs';
-import { createCalendar } from './lib/calendar.mjs';
 
 const ROOT = dirname(fileURLToPath(import.meta.url));
 const MIME = { '.html': 'text/html; charset=utf-8', '.css': 'text/css; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.mjs': 'text/javascript; charset=utf-8', '.svg': 'image/svg+xml', '.png': 'image/png', '.ico': 'image/x-icon', '.json': 'application/json; charset=utf-8', '.webmanifest': 'application/manifest+json' };
@@ -32,12 +31,6 @@ export function createApp({ store, publicDir = resolve(ROOT, 'public'), refreshC
         lastManualAt = Date.now();
         void store.refresh();
         return json(res, 202, { accepted: true, ...store.snapshot() });
-      }
-      if (url.pathname === '/api/calendar.ics' && req.method === 'GET') {
-        const ids = url.searchParams.has('ids') ? new Set(url.searchParams.get('ids').split(',')) : null;
-        const conferences = store.snapshot().conferences.filter(row => !ids || ids.has(row.id));
-        res.writeHead(200, { 'content-type': 'text/calendar; charset=utf-8', 'content-disposition': 'attachment; filename="paper-conferences.ics"', 'cache-control': 'no-cache' });
-        return res.end(createCalendar(conferences));
       }
       if (url.pathname.startsWith('/api/')) return json(res, 404, { error: 'API를 찾을 수 없습니다.' });
       if (!['GET', 'HEAD'].includes(req.method)) return json(res, 405, { error: '지원하지 않는 요청입니다.' }, { allow: 'GET, HEAD' });

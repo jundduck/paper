@@ -2,7 +2,7 @@
 // Requires Node 22+ and Chrome/Chromium. Set CHROME_PATH to override its location.
 import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
-import { mkdir, readFile, readdir, rm, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { setTimeout as sleep } from 'node:timers/promises';
@@ -12,11 +12,10 @@ const origin = process.argv[2] || 'http://127.0.0.1:3000';
 const dataPath = process.env.PAPER_STATIC === '1' ? 'data.json' : 'api/conferences';
 const artifacts = join(root, 'artifacts');
 const profile = join(artifacts, `browser-profile-${process.pid}`);
-const downloads = join(artifacts, `downloads-${process.pid}`);
 const chromePath = process.env.CHROME_PATH || (process.platform === 'win32' ? 'C:/Program Files/Google/Chrome/Application/chrome.exe' : 'google-chrome');
 const checks = [], errors = [];
 let socket, browser, intentionallyFailing = false;
-await mkdir(downloads, { recursive: true });
+await mkdir(artifacts, { recursive: true });
 
 async function until(check, message, timeout = 12000) {
   const start = Date.now();
@@ -147,21 +146,7 @@ try {
   await until(() => evaluate(`!document.querySelector('#detail-dialog').open && document.activeElement.dataset.detail === '${first.id}'`), 'dialog close and focus restoration');
   check('Escape closes modal and restores focus', await evaluate(`!document.querySelector('#detail-dialog').open && document.activeElement.dataset.detail === '${first.id}'`));
 
-  await click('[data-view="calendar"]');
-  const title = await evaluate("document.querySelector('#calendar-title').textContent");
-  await click('#calendar-next'); check('Calendar next month', await evaluate("document.querySelector('#calendar-title').textContent") !== title);
-  await click('#calendar-prev'); check('Calendar previous month', await evaluate("document.querySelector('#calendar-title').textContent"), title);
-  await click('#calendar-next'); await click('#calendar-today'); check('Calendar today', await evaluate("document.querySelector('#calendar-title').textContent"), title);
-  check('Calendar complete week grid', await evaluate("document.querySelectorAll('.calendar-cell').length % 7 === 0"));
-  await screenshot('calendar.png');
-  await click('[data-view="list"]');
-
-  await cdp('Browser.setDownloadBehavior', { behavior: 'allow', downloadPath: downloads, eventsEnabled: true });
-  await click('a[download]');
-  const filename = await until(async () => (await readdir(downloads)).find(f => f.endsWith('.ics')), 'calendar download');
-  const ics = await readFile(join(downloads, filename), 'utf8');
-  check('Actual ICS download has calendar and events', ics.startsWith('BEGIN:VCALENDAR') && ics.includes('BEGIN:VEVENT') && ics.includes('END:VCALENDAR'));
-  await writeFile(join(artifacts, 'downloaded-calendar.ics'), ics);
+  check('Calendar UI and export removed', await evaluate("document.querySelector('[data-nav=\"calendar\"], [data-view=\"calendar\"], #calendar-view, a[download]') === null"));
 
 
   check('Main page no longer shows the research roadmap', await evaluate("document.querySelector('#research-roadmap') === null"));
@@ -280,7 +265,7 @@ try {
   await cdp('Page.reload'); await loaded(); check('Recovered API hides error banner', await evaluate("document.querySelector('#load-error').hidden"));
   check('No browser console, runtime, or resource errors during normal use', baselineErrors, []);
 
-  await writeFile(join(artifacts, 'browser-report.json'), JSON.stringify({ origin, testedAt: new Date().toISOString(), checks, errors, screenshots: ['desktop.png', 'mobile.png', 'calendar.png', 'mobile-detail.png', 'roadmap-desktop.png', 'roadmap-mobile.png'], venueCount: initial.conferences.length }, null, 2));
+  await writeFile(join(artifacts, 'browser-report.json'), JSON.stringify({ origin, testedAt: new Date().toISOString(), checks, errors, screenshots: ['desktop.png', 'mobile.png', 'mobile-detail.png', 'roadmap-desktop.png', 'roadmap-mobile.png'], venueCount: initial.conferences.length }, null, 2));
   console.log(`\n${checks.length} browser checks passed. Artifacts: ${artifacts}`);
 } catch (error) {
   await writeFile(join(artifacts, 'browser-report.json'), JSON.stringify({ origin, testedAt: new Date().toISOString(), checks, errors, failure: error.stack }, null, 2));
@@ -289,5 +274,4 @@ try {
   socket?.close();
   if (browser && browser.exitCode === null) { browser.kill(); await Promise.race([new Promise(resolve => browser.once('exit', resolve)), sleep(3000)]); }
   if (profile.startsWith(`${artifacts}\\`) || profile.startsWith(`${artifacts}/`)) await rm(profile, { recursive: true, force: true, maxRetries: 5, retryDelay: 300 }).catch(() => {});
-  if (downloads.startsWith(`${artifacts}\\`) || downloads.startsWith(`${artifacts}/`)) await rm(downloads, { recursive: true, force: true, maxRetries: 5, retryDelay: 300 }).catch(() => {});
 }

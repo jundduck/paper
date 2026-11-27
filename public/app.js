@@ -2,22 +2,17 @@ const STATIC_MODE = document.querySelector('meta[name="paper-mode"]')?.content =
 const paths = {
   grid: '<rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/>',
   bookmark: '<path d="M6 4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v17l-6-4-6 4Z"/>',
-  calendar: '<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 11h18m-13 4h2m4 0h2"/>',
   shield: '<path d="m12 3 8 3v6c0 5-8 9-8 9s-8-4-8-9V6Z"/><path d="m8 12 3 3 5-6"/>',
   refresh: '<path d="M20 8a8 8 0 0 0-14-3L3 8m0-5v5h5M4 16a8 8 0 0 0 14 3l3-3m0 5v-5h-5"/>',
   stack: '<path d="m12 3 9 5-9 5-9-5Zm-9 9 9 5 9-5m-18 5 9 5 9-5"/>',
   clock: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
   hourglass: '<path d="M6 3h12M6 21h12M7 3v4c0 2 5 5 5 5s5-3 5-5V3M7 21v-4c0-2 5-5 5-5s5 3 5 5v4"/>',
   book: '<path d="M12 5v15M3 4c3-1 6-1 9 1 3-2 6-2 9-1v15c-3-1-6-1-9 1-3-2-6-2-9-1Z"/>',
-  download: '<path d="M12 3v12m-5-5 5 5 5-5M4 16v4h16v-4"/>',
-  list: '<path d="M8 6h13M8 12h13M8 18h13M3 6h1M3 12h1M3 18h1"/>',
   search: '<circle cx="10.5" cy="10.5" r="7.5"/><path d="m16 16 5 5"/>',
   globe: '<circle cx="12" cy="12" r="9"/><ellipse cx="12" cy="12" rx="4" ry="9"/><path d="M3 12h18"/>',
   sort: '<path d="M8 4v16m-4-4 4 4 4-4M16 20V4m-4 4 4-4 4 4"/>',
   info: '<circle cx="12" cy="12" r="9"/><path d="M12 11v6m0-10v1"/>',
   'arrow-up-right': '<path d="M6 18 18 6M6 6h12v12"/>',
-  'chevron-left': '<path d="m14 6-6 6 6 6"/>',
-  'chevron-right': '<path d="m10 6 6 6-6 6"/>',
   x: '<path d="m6 6 12 12M6 18 18 6"/>',
   pin: '<path d="M19 10c0 5-7 11-7 11S5 15 5 10a7 7 0 1 1 14 0Z"/><circle cx="12" cy="10" r="2"/>',
   infinity: '<path d="M12 12c-4-8-10-5-10 0s6 8 10 0 10-5 10 0-6 8-10 0Z"/>',
@@ -36,9 +31,9 @@ const storage = {
 };
 const initialSaved = storage.get('papertrail-saved', []);
 const state = {
-  conferences: [], sync: {}, category: 'all', nav: 'all', view: 'list', search: '', year: 'all', status: 'all',
+  conferences: [], sync: {}, category: 'all', nav: 'all', search: '', year: 'all', status: 'all',
   timezone: storage.get('papertrail-timezone', 'Asia/Seoul'), saved: new Set(Array.isArray(initialSaved) ? initialSaved.filter(x => typeof x === 'string') : []),
-  month: new Date().getMonth(), calendarYear: new Date().getFullYear(), reverse: false, loaded: false,
+  reverse: false, loaded: false,
 };
 if (!(state.timezone in zoneNames)) state.timezone = 'Asia/Seoul';
 $('#timezone').value = state.timezone;
@@ -183,34 +178,12 @@ function renderRows() {
     <td class="acceptance-cell">${acceptanceMarkup(c)}</td>
     <td><button class="save-button ${state.saved.has(c.id) ? 'saved' : ''}" data-save="${escapeHtml(c.id)}" aria-label="${escapeHtml(c.acronym)} ${state.saved.has(c.id) ? '저장 해제' : '저장'}" aria-pressed="${state.saved.has(c.id)}">${icon('bookmark')}</button></td></tr>`).join('');
   $('#empty-state').hidden = rows.length > 0;
-  $('#list-view').hidden = state.view !== 'list' || rows.length === 0;
-  $('#calendar-view').hidden = state.view !== 'calendar' || rows.length === 0;
-  if (state.view === 'calendar') renderCalendar(rows);
+  $('#list-view').hidden = rows.length === 0;
   document.querySelectorAll('[data-category]').forEach(el => { const active = el.dataset.category === state.category; el.classList.toggle('active', active); el.setAttribute('aria-pressed', active); });
   document.querySelectorAll('[data-area]').forEach(el => el.classList.toggle('active', el.dataset.area === state.category));
   document.querySelectorAll('[data-nav]').forEach(el => { const active = el.dataset.nav === state.nav; el.classList.toggle('active', active); if (active) el.setAttribute('aria-current', 'page'); else el.removeAttribute('aria-current'); });
-  document.querySelectorAll('[data-view]').forEach(el => { const active = el.dataset.view === state.view; el.classList.toggle('active', active); el.setAttribute('aria-pressed', active); });
-  const title = state.nav === 'saved' ? '저장한 학회' : state.view === 'calendar' ? '일정 캘린더' : '전체 일정';
+  const title = state.nav === 'saved' ? '저장한 학회' : '전체 일정';
   $('#schedule-title').textContent = title;
-}
-function renderCalendar(rows) {
-  const year = state.calendarYear, month = state.month;
-  $('#calendar-title').textContent = `${year}년 ${month + 1}월`;
-  const firstWeekday = new Date(year, month, 1).getDay();
-  const dayCount = new Date(year, month + 1, 0).getDate();
-  const cellCount = Math.ceil((firstWeekday + dayCount) / 7) * 7;
-  const milestones = rows.flatMap(c => [
-    ...(c.deadline ? [{ c, date: dateKey(c.deadline), type: 'paper', label: c.deadlineShortLabel || '본문' }] : []),
-    ...(c.finalPaperDeadline ? [{ c, date: dateKey(c.finalPaperDeadline), type: 'paper', label: '최종 논문 · 초청' }] : []),
-    ...(c.abstractDeadline ? [{ c, date: dateKey(c.abstractDeadline), type: 'abstract', label: c.acronym === 'CVPR' ? '등록' : '초록' }] : []),
-    ...(c.startDate ? [{ c, date: c.startDate, type: 'start', label: '개최' }] : []),
-  ]);
-  const today = dateKey(new Date().toISOString());
-  $('#calendar-grid').innerHTML = Array.from({ length: cellCount }, (_, i) => {
-    const d = new Date(year, month, i - firstWeekday + 1);
-    const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-    return `<div class="calendar-cell ${d.getMonth() !== month ? 'outside' : ''} ${key === today ? 'today' : ''}"><span class="calendar-number">${d.getDate()}</span>${milestones.filter(e => e.date === key).map(e => `<button class="calendar-event ${e.type}" data-detail="${escapeHtml(e.c.id)}" title="${escapeHtml(e.c.acronym)} ${e.label} · ${key}">${escapeHtml(e.c.acronym)} ${e.label}</button>`).join('')}</div>`;
-  }).join('');
 }
 function renderSync() {
   const s = state.sync;
@@ -245,7 +218,7 @@ function showDetail(id) {
 }
 function showSources() {
   const s = state.sync;
-  $('#dialog-content').innerHTML = `<div class="dialog-eyebrow">A NOTE ON OUR DATA</div><h2 class="dialog-title" id="dialog-title">믿을 수 있는 일정의 기준</h2><div class="source-description"><p>공식 홈페이지와 논문 모집 공고를 우선합니다. 아직 확인되지 않은 마감일은 비워두고, 저널의 일반 투고는 상시 투고로 구분합니다.</p><p>공식 출처는 <strong>${Number(s.intervalMinutes) || 60}분 간격</strong>으로 확인합니다. 이 화면은 1분마다 공개된 결과를 불러옵니다. ${STATIC_MODE ? "화면 새로고침은 최신 공개 데이터를 다시 읽습니다. 예약 실행은 지연되거나 중단될 수 있습니다." : ""} 원문 변경 직후의 즉시 반영을 보장하지는 않습니다.</p><p>지원되는 형식의 제출 마감은 자동 반영합니다. 날짜를 안전하게 읽을 수 없는 페이지의 내용이 달라지면 <strong>재확인 필요</strong>로 표시합니다. 연결 실패 시에는 마지막 확인 일정을 유지합니다. 개최 일정과 출처의 연도 전환도 원문 재확인이 필요할 수 있습니다.</p><p>마감 시각·시간대가 명시된 경우에만 한국 시간·AoE·UTC로 변환합니다. 날짜만 발표된 일정은 원문의 날짜를 그대로 표시합니다. 캘린더 내보내기는 현재 일정의 사본이며 이후 변경은 다시 내려받아야 합니다.</p><p>마지막 시도: <strong>${s.lastAttemptAt ? dateText(s.lastAttemptAt, true) : '아직 없음'}</strong><br>다음 확인: <strong>${s.nextSyncAt ? dateText(s.nextSyncAt, true) : STATIC_MODE ? '30분 간격 예약 실행 · 지연 가능' : '서버에서 예약 중'}</strong><br>${escapeHtml(s.message || '')}</p></div><div class="source-list">${state.conferences.map(c => `<div class="source-row"><a href="${safeUrl(c.sourceUrl)}" target="_blank" rel="noopener noreferrer">${escapeHtml(c.acronym)} ${c.year || ''} ↗</a><span class="${sourceWarning(c) ? 'error' : ''}">${escapeHtml(sourceWarning(c) || (c.sourceCheckedAt ? '출처 접속 완료' : c.verifiedAt ? '초기 공식 자료 확인' : '확인 대기'))}</span></div>`).join('')}</div>`;
+  $('#dialog-content').innerHTML = `<div class="dialog-eyebrow">A NOTE ON OUR DATA</div><h2 class="dialog-title" id="dialog-title">믿을 수 있는 일정의 기준</h2><div class="source-description"><p>공식 홈페이지와 논문 모집 공고를 우선합니다. 아직 확인되지 않은 마감일은 비워두고, 저널의 일반 투고는 상시 투고로 구분합니다.</p><p>공식 출처는 <strong>${Number(s.intervalMinutes) || 60}분 간격</strong>으로 확인합니다. 이 화면은 1분마다 공개된 결과를 불러옵니다. ${STATIC_MODE ? "화면 새로고침은 최신 공개 데이터를 다시 읽습니다. 예약 실행은 지연되거나 중단될 수 있습니다." : ""} 원문 변경 직후의 즉시 반영을 보장하지는 않습니다.</p><p>지원되는 형식의 제출 마감은 자동 반영합니다. 날짜를 안전하게 읽을 수 없는 페이지의 내용이 달라지면 <strong>재확인 필요</strong>로 표시합니다. 연결 실패 시에는 마지막 확인 일정을 유지합니다. 개최 일정과 출처의 연도 전환도 원문 재확인이 필요할 수 있습니다.</p><p>마감 시각·시간대가 명시된 경우에만 한국 시간·AoE·UTC로 변환합니다. 날짜만 발표된 일정은 원문의 날짜를 그대로 표시합니다.</p><p>마지막 시도: <strong>${s.lastAttemptAt ? dateText(s.lastAttemptAt, true) : '아직 없음'}</strong><br>다음 확인: <strong>${s.nextSyncAt ? dateText(s.nextSyncAt, true) : STATIC_MODE ? '30분 간격 예약 실행 · 지연 가능' : '서버에서 예약 중'}</strong><br>${escapeHtml(s.message || '')}</p></div><div class="source-list">${state.conferences.map(c => `<div class="source-row"><a href="${safeUrl(c.sourceUrl)}" target="_blank" rel="noopener noreferrer">${escapeHtml(c.acronym)} ${c.year || ''} ↗</a><span class="${sourceWarning(c) ? 'error' : ''}">${escapeHtml(sourceWarning(c) || (c.sourceCheckedAt ? '출처 접속 완료' : c.verifiedAt ? '초기 공식 자료 확인' : '확인 대기'))}</span></div>`).join('')}</div>`;
   openDialog();
 }
 function toggleSaved(id) {
@@ -307,8 +280,7 @@ document.addEventListener('click', event => {
   const save = event.target.closest('[data-save]'); if (save) { toggleSaved(save.dataset.save); return; }
   const category = event.target.closest('[data-category]'); if (category) { state.category = category.dataset.category; renderRows(); return; }
   const area = event.target.closest('button[data-area]'); if (area) { state.category = area.dataset.area; state.nav = 'all'; renderRows(); return; }
-  const nav = event.target.closest('[data-nav]'); if (nav) { state.nav = nav.dataset.nav; state.view = state.nav === 'calendar' ? 'calendar' : 'list'; resetFilters(); return; }
-  const view = event.target.closest('[data-view]'); if (view) { state.view = view.dataset.view; if (state.nav === 'calendar' && state.view === 'list') state.nav = 'all'; renderRows(); }
+  const nav = event.target.closest('[data-nav]'); if (nav) { state.nav = nav.dataset.nav; resetFilters(); return; }
 });
 $('#search').addEventListener('input', event => { state.search = event.target.value.trim(); renderRows(); });
 $('#year-filter').addEventListener('change', event => { state.year = event.target.value; renderRows(); });
@@ -330,9 +302,6 @@ $('#detail-dialog').addEventListener('keydown', event => {
   else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
 });
 $('#detail-dialog').addEventListener('click', event => { if (event.target === $('#detail-dialog')) { const rect = event.target.getBoundingClientRect(); if (event.clientX < rect.left || event.clientX > rect.right || event.clientY < rect.top || event.clientY > rect.bottom) event.target.close(); } });
-$('#calendar-prev').addEventListener('click', () => { const d = new Date(state.calendarYear, state.month - 1); state.calendarYear = d.getFullYear(); state.month = d.getMonth(); renderRows(); });
-$('#calendar-next').addEventListener('click', () => { const d = new Date(state.calendarYear, state.month + 1); state.calendarYear = d.getFullYear(); state.month = d.getMonth(); renderRows(); });
-$('#calendar-today').addEventListener('click', () => { const p = parts(new Date().toISOString()); state.calendarYear = Number(p.year); state.month = Number(p.month) - 1; renderRows(); });
 document.addEventListener('keydown', event => { if (event.key === '/' && !['INPUT', 'SELECT', 'TEXTAREA'].includes(document.activeElement.tagName) && !$('#detail-dialog').open) { event.preventDefault(); $('#search').focus(); } });
 window.addEventListener('storage', event => { if (event.key === 'papertrail-saved') { const saved = storage.get('papertrail-saved', []); state.saved = new Set(Array.isArray(saved) ? saved : []); renderStats(); renderRows(); } });
 document.addEventListener('visibilitychange', () => { if (!document.hidden) fetchData(); });
