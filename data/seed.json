@@ -303,8 +303,8 @@
       "endDate": null,
       "location": null,
       "status": "pending",
-      "verifiedAt": "2026-11-20T17:04:58.955Z",
-      "notes": "2026-11-21 공식 Future Meetings를 재확인했으며 현재 ICLR 2027 개최 지역까지만 안내되어 있습니다. ICLR 2028 제출 마감과 개최 일정은 미발표입니다.",
+      "verifiedAt": "2026-11-27T15:00:00.000Z",
+      "notes": "2026-11-28 공식 Future Meetings를 재확인했으며 현재 ICLR 2027 개최 지역까지만 안내되어 있습니다. ICLR 2028 제출 마감과 개최 일정은 미발표입니다.",
       "previousDeadline": {
         "edition": 2027,
         "date": "2026-09-25",
@@ -312,7 +312,7 @@
         "timezone": "AoE",
         "sourceUrl": "https://www.iclr.cc/Conferences/2027/CallForPapers",
         "sourceName": "ICLR 2027 공식 Call for Papers",
-        "checkedAt": "2026-09-20"
+        "checkedAt": "2026-11-28"
       },
       "acceptanceHistory": [
         {
@@ -332,7 +332,7 @@
       "previousIds": [
         "iclr-2027"
       ],
-      "manualReviewAt": "2026-11-20T17:04:58.955Z"
+      "manualReviewAt": "2026-11-27T15:00:00.000Z"
     },
     {
       "id": "corl-2027",
