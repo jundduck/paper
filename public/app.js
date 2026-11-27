@@ -38,7 +38,7 @@ const initialSaved = storage.get('papertrail-saved', []);
 const state = {
   conferences: [], sync: {}, category: 'all', nav: 'all', view: 'list', search: '', year: 'all', status: 'all',
   timezone: storage.get('papertrail-timezone', 'Asia/Seoul'), saved: new Set(Array.isArray(initialSaved) ? initialSaved.filter(x => typeof x === 'string') : []),
-  month: new Date().getMonth(), calendarYear: new Date().getFullYear(), reverse: false, loaded: false, next: null, selectedId: storage.get('papertrail-selected', null),
+  month: new Date().getMonth(), calendarYear: new Date().getFullYear(), reverse: false, loaded: false,
 };
 if (!(state.timezone in zoneNames)) state.timezone = 'Asia/Seoul';
 $('#timezone').value = state.timezone;
@@ -107,34 +107,6 @@ function renderStats() {
   $('#today-date').textContent = `${today.year}. ${today.month}. ${today.day}`;
   $('#today-weekday').textContent = new Intl.DateTimeFormat('ko-KR', { timeZone: 'Asia/Seoul', weekday: 'long' }).format(new Date());
 }
-function renderNext() {
-  const c = state.conferences.find(c => c.id === state.selectedId);
-  state.next = c?.deadline ? { conference: c, value: c.deadline, label: 'Submission Deadline' } : null;
-  if (!c) {
-    $('#next-deadline').innerHTML = '<div class="next-empty">카운트다운을 표시할 학회를 선택하세요.<p>아래 목록의 학회명을 누르면 선택한 항목에 밑줄이 표시됩니다.</p></div>';
-    return;
-  }
-  const description = c.deadline ? (c.deadlineShortLabel ? `${c.deadlineLabel} · ` : '') + dateText(c.deadline, true) + (dateOnly(c.deadline) ? ' · 시각 미발표' : '') : c.type === 'journal' ? '일반 논문 투고 기준' : '공식 제출 일정 발표 대기';
-  $('#next-deadline').innerHTML = `<div><div class="next-eyebrow"><i class="status-dot"></i>SELECTED CONFERENCE</div><div class="next-title"><strong>${escapeHtml(c.acronym)} ${c.year || ''}</strong><span>Submission Deadline</span></div><div class="next-description">${escapeHtml(description)}${sourceWarning(c) ? ' · 원문 재확인 필요' : ''}</div></div><div class="countdown" id="countdown" aria-label="선택한 학회의 마감 상태">${!c.deadline ? `<span class="countdown-status">${c.type === 'journal' ? '상시 투고' : '일정 미정'}</span>` : ''}</div><button class="next-link" data-detail="${escapeHtml(c.id)}"><span class="link-text">일정 확인</span>${icon('arrow-up-right')}</button>`;
-  tickCountdown();
-}
-function selectConference(id) {
-  if (!state.conferences.some(c => c.id === id)) return;
-  state.selectedId = state.selectedId === id ? null : id;
-  storage.set('papertrail-selected', state.selectedId);
-  renderNext();
-  renderRows();
-  document.querySelector(`[data-select="${CSS.escape(id)}"]`)?.focus({ preventScroll: true });
-}
-function tickCountdown() {
-  if (!state.next || !$('#countdown')) return;
-  const value = state.next.value;
-  if (isPast(value)) { $('#countdown').innerHTML = '<span class="countdown-status">마감됨</span>'; return; }
-  if (dateOnly(value)) { $('#countdown').innerHTML = `<span class="countdown-status">D-${Math.max(0, daysUntil(value))}</span>`; return; }
-  const seconds = Math.max(0, Math.floor((Date.parse(value) - Date.now()) / 1000));
-  const numbers = [Math.floor(seconds / 86400), Math.floor(seconds / 3600) % 24, Math.floor(seconds / 60) % 60, seconds % 60];
-  $('#countdown').innerHTML = numbers.map((number, index) => `${index ? '<span class="countdown-sep">:</span>' : ''}<div class="countdown-part"><strong>${String(number).padStart(2, '0')}</strong><span>${['DAYS', 'HOURS', 'MINS', 'SECS'][index]}</span></div>`).join('');
-}
 function previousDeadlineMarkup(c) {
   const previous = c.previousDeadline;
   if (!previous || !Number.isInteger(previous.edition) || !/^\d{4}-\d{2}-\d{2}$/.test(previous.date || '')) return '';
@@ -142,29 +114,58 @@ function previousDeadlineMarkup(c) {
   const timezone = previous.timezone ? ` ${escapeHtml(previous.timezone)}` : '';
   return `<a class="previous-deadline" href="${safeUrl(previous.sourceUrl)}" target="_blank" rel="noopener noreferrer" title="${escapeHtml(previous.sourceName || '직전 회차 공식 일정')}">이전 ${previous.edition} 회차 마감 · <strong>${escapeHtml(previous.date.replaceAll('-', '.'))}${time}${timezone}</strong>${icon('arrow-up-right')}</a>`;
 }
-function notificationMarkup(c) {
-  const policy = c.notificationPolicy;
+function milestoneDate(value) {
+  const p = parts(value);
+  if (!p) return { date: '확인 대기', time: '' };
+  return { date: `${p.year}.${p.month}.${p.day}`, time: p.hour ? `${p.hour}:${p.minute} ${zoneNames[state.timezone]}` : '시각 미발표' };
+}
+function milestoneLine({ label, value, time = '', url = '', title = '', primary = false, previous = false, status = '' }) {
+  const tag = safeUrl(url) === '#' ? 'div' : 'a';
+  const link = tag === 'a' ? ` href="${safeUrl(url)}" target="_blank" rel="noopener noreferrer"` : '';
+  const tooltip = title ? ` title="${escapeHtml(title)}"` : '';
+  return `<${tag} class="milestone-row${primary ? ' primary' : ''}${previous ? ' previous' : ''}"${link}${tooltip}><span class="milestone-label">${escapeHtml(label)}</span><span class="milestone-value">${primary ? '<strong>' : ''}${escapeHtml(value)}${primary ? '</strong>' : ''}${time ? ` <span class="milestone-time">(${escapeHtml(time)})</span>` : ''}</span>${status ? `<span class="deadline-status ${status === '마감됨' ? 'closed' : 'open'}">${escapeHtml(status)}</span>` : ''}${tag === 'a' ? icon('arrow-up-right') : ''}</${tag}>`;
+}
+function previousMilestone(c) {
+  const previous = c.previousDeadline;
+  if (!previous || !Number.isInteger(previous.edition) || !/^\d{4}-\d{2}-\d{2}$/.test(previous.date || '')) return '';
+  const time = previous.time ? `${previous.time}${previous.timezone ? ` ${previous.timezone}` : ''}` : previous.timezone ? `${previous.timezone} · 시각 미발표` : '시각 미발표';
+  return milestoneLine({ label: `previous submission (${previous.edition})`, value: previous.date.replaceAll('-', '.'), time, url: previous.sourceUrl, title: previous.sourceName, previous: true });
+}
+function notificationMilestone(c) {
   if (c.type === 'journal') {
-    if (!policy?.label || safeUrl(policy.sourceUrl) === '#') return '<div class="notification-row static">결정 통보 · 심사 후 개별 안내</div>';
-    return `<a class="notification-row" href="${safeUrl(policy.sourceUrl)}" target="_blank" rel="noopener noreferrer" title="${escapeHtml(policy.sourceName || '공식 심사 안내')}">결정 통보 · <strong>${escapeHtml(policy.label)}</strong>${icon('arrow-up-right')}</a>`;
+    const policy = c.notificationPolicy;
+    return milestoneLine({ label: 'notification', value: policy?.label || '심사 후 개별 안내', url: policy?.sourceUrl, title: policy?.sourceName });
   }
-  const parsedDate = c.notificationDate;
-  if (parsedDate) return `<a class="notification-row" href="${safeUrl(c.sourceUrl)}" target="_blank" rel="noopener noreferrer" title="${escapeHtml(c.sourceName || '공식 결과 발표 일정')}">결과 발표 · <strong>${escapeHtml(dateText(parsedDate))}</strong>${icon('arrow-up-right')}</a>`;
+  if (c.notificationDate) {
+    const shown = milestoneDate(c.notificationDate);
+    return milestoneLine({ label: 'notification', value: shown.date, time: shown.time, url: c.notification?.sourceUrl || c.sourceUrl, title: c.notification?.sourceName || c.sourceName });
+  }
   const value = c.notification;
-  if (!value || !Number.isInteger(value.edition) || !/^\d{4}-\d{2}-\d{2}$/.test(value.date || '') || safeUrl(value.sourceUrl) === '#') return '<div class="notification-row static">결과 발표 · 확인 대기</div>';
+  if (!value || !Number.isInteger(value.edition) || !/^\d{4}-\d{2}-\d{2}$/.test(value.date || '')) return milestoneLine({ label: 'notification', value: '확인 대기' });
   const previous = value.edition !== c.year;
-  const label = previous ? `이전 ${value.edition} 회차 발표` : '결과 발표';
-  return `<a class="notification-row${previous ? ' previous' : ''}" href="${safeUrl(value.sourceUrl)}" target="_blank" rel="noopener noreferrer" title="${escapeHtml(value.sourceName || '공식 결과 발표 일정')}">${label} · <strong>${escapeHtml(value.date.replaceAll('-', '.'))}</strong>${icon('arrow-up-right')}</a>`;
+  return milestoneLine({ label: previous ? `previous notification (${value.edition})` : 'notification', value: value.date.replaceAll('-', '.'), time: '시각 미발표', url: value.sourceUrl, title: value.sourceName, previous });
 }
 function deadlineMarkup(c) {
   const status = statusOf(c);
-  if (status === 'rolling') return `<div class="rolling-text">${icon('infinity')}상시 투고</div><div class="deadline-sub">일반 논문 기준</div>`;
-  if (!c.deadline) return `<div class="pending-text">확인 대기</div>${previousDeadlineMarkup(c)}`;
-  let sub = dateOnly(c.deadline) ? `${c.timezone ? `${c.timezone} 날짜 · ` : ''}시각·시간대 ${c.timezone ? '변환 없음' : '미발표'}` : `${parts(c.deadline).hour}:${parts(c.deadline).minute} ${zoneNames[state.timezone]}`;
-  if (c.abstractDeadline && status !== 'closed') sub += ` · ${c.acronym === 'CVPR' ? '등록' : '초록'} ${isPast(c.abstractDeadline) ? '마감됨' : dateText(c.abstractDeadline).slice(5)}`;
-  if (c.deadlineShortLabel) sub += ` · ${c.deadlineLabel}`;
-  const finalPaper = c.finalPaperDeadline ? `<div class="deadline-sub">2단계 최종 논문 · ${escapeHtml(dateText(c.finalPaperDeadline, true))} · 초청 대상</div>` : '';
-  return `<div class="deadline-main"><span class="deadline-date">${dateText(c.deadline)}</span>${status === 'closed' ? '<span class="deadline-status closed">마감됨</span>' : ''}</div><div class="deadline-sub">${escapeHtml(sub)}</div>${finalPaper}`;
+  if (status === 'rolling') return `<div class="milestone-list">${milestoneLine({ label: 'submission deadline', value: '상시 투고', primary: true })}${notificationMilestone(c)}</div>`;
+  const rows = [];
+  if (c.abstractDeadline) {
+    const shown = milestoneDate(c.abstractDeadline);
+    rows.push(milestoneLine({ label: c.acronym === 'CVPR' ? 'paper registration' : 'abstract', value: shown.date, time: shown.time, url: c.sourceUrl, title: c.sourceName }));
+  }
+  if (c.deadline) {
+    const shown = milestoneDate(c.deadline);
+    rows.push(milestoneLine({ label: 'submission deadline', value: shown.date, time: shown.time, url: c.sourceUrl, title: c.sourceName, primary: true, status: status === 'closed' ? '마감됨' : '' }));
+  } else {
+    rows.push(milestoneLine({ label: 'submission deadline', value: '확인 대기', primary: true }));
+    rows.push(previousMilestone(c));
+  }
+  if (c.finalPaperDeadline) {
+    const shown = milestoneDate(c.finalPaperDeadline);
+    rows.push(milestoneLine({ label: 'final paper', value: shown.date, time: shown.time, url: c.sourceUrl, title: `${c.sourceName || '공식 일정'} · 초청 대상` }));
+  }
+  rows.push(notificationMilestone(c));
+  return `<div class="milestone-list">${rows.join('')}</div>`;
 }
 function acceptanceMarkup(c, detailed = false) {
   const history = (c.acceptanceHistory || []).filter(a => Number.isFinite(a.rate) && a.rate >= 0 && a.rate <= 100 && Number.isInteger(a.year)).slice().sort((a, b) => b.year - a.year);
@@ -176,8 +177,8 @@ function renderRows() {
   $('#result-count').textContent = rows.length;
   $('#showing-count').textContent = `${state.conferences.length}개 학회·저널 중 ${rows.length}개 표시`;
   $('#conference-rows').innerHTML = rows.map(c => `<tr data-area="${escapeHtml(c.category)}">
-    <td><div class="venue-main"><button class="venue-link ${state.selectedId === c.id ? 'countdown-selected' : ''}" data-select="${escapeHtml(c.id)}" aria-pressed="${state.selectedId === c.id}" title="상단 카운트다운에 표시">${escapeHtml(c.acronym)}<span class="venue-year">${c.year || ''}</span></button><button class="venue-details" data-detail="${escapeHtml(c.id)}" aria-label="${escapeHtml(c.acronym)} 상세 일정">${icon('info')}</button>${c.type === 'journal' ? '<span class="venue-abbreviation">J</span>' : ''}</div><div class="venue-name" title="${escapeHtml(c.name)}">${escapeHtml(c.name)}</div></td>
-    <td>${badge(c)}</td><td>${deadlineMarkup(c)}${notificationMarkup(c)}${sourceWarning(c) ? `<div class="deadline-sub warning">${sourceWarning(c)}</div>` : ''}</td>
+    <td><div class="venue-main"><a class="venue-link" href="${safeUrl(c.website || c.sourceUrl)}" target="_blank" rel="noopener noreferrer" data-venue-id="${escapeHtml(c.id)}" title="${escapeHtml(c.acronym)} 공식 홈페이지 열기">${escapeHtml(c.acronym)}<span class="venue-year">${c.year || ''}</span>${icon('arrow-up-right')}</a><button class="venue-details" data-detail="${escapeHtml(c.id)}" aria-label="${escapeHtml(c.acronym)} 상세 일정">${icon('info')}</button>${c.type === 'journal' ? '<span class="venue-abbreviation">J</span>' : ''}</div><a class="venue-name" href="${safeUrl(c.website || c.sourceUrl)}" target="_blank" rel="noopener noreferrer" title="${escapeHtml(c.name)} 공식 홈페이지 열기">${escapeHtml(c.name)}</a></td>
+    <td>${badge(c)}</td><td>${deadlineMarkup(c)}${sourceWarning(c) ? `<div class="deadline-sub warning">${sourceWarning(c)}</div>` : ''}</td>
     <td><div class="${c.startDate ? 'deadline-date' : 'pending-text'}">${periodText(c)}</div>${c.location ? `<div class="location">${icon('pin')}${escapeHtml(c.location)}</div>` : ''}</td>
     <td class="acceptance-cell">${acceptanceMarkup(c)}</td>
     <td><button class="save-button ${state.saved.has(c.id) ? 'saved' : ''}" data-save="${escapeHtml(c.id)}" aria-label="${escapeHtml(c.acronym)} ${state.saved.has(c.id) ? '저장 해제' : '저장'}" aria-pressed="${state.saved.has(c.id)}">${icon('bookmark')}</button></td></tr>`).join('');
@@ -222,7 +223,7 @@ function renderSync() {
   $('#sync-summary').title = `${s.message || ''}\n다음 갱신: ${s.nextSyncAt ? dateText(s.nextSyncAt, true) : STATIC_MODE ? '30분 간격 예약 실행 · 지연 가능' : '서버 시작 후 예약'}`;
   if (busy && !refreshTimer) refreshTimer = setTimeout(() => { refreshTimer = null; fetchData(); }, 2500);
 }
-function renderAll() { renderStats(); renderNext(); renderRows(); renderSync(); }
+function renderAll() { renderStats(); renderRows(); renderSync(); }
 
 function showDetail(id) {
   const c = state.conferences.find(c => c.id === id);
@@ -266,10 +267,6 @@ async function fetchData() {
     state.conferences = payload.conferences; state.sync = payload.sync || {}; state.loaded = true;
     for (const conference of state.conferences) {
       for (const previousId of conference.previousIds || []) {
-        if (state.selectedId === previousId) {
-          state.selectedId = conference.id;
-          storage.set('papertrail-selected', state.selectedId);
-        }
         if (state.saved.delete(previousId)) {
           state.saved.add(conference.id);
           storage.set('papertrail-saved', [...state.saved]);
@@ -288,7 +285,7 @@ async function fetchData() {
       : (state.loaded ? '서버 연결을 확인할 수 없습니다. 마지막으로 불러온 일정을 표시합니다. 잠시 후 새로고침해 주세요.' : '일정을 불러오지 못했어요. 서버가 실행 중인지 확인하고 새로고침해 주세요.');
     $('#load-error').hidden = false;
     $('#sync-summary').textContent = STATIC_MODE ? '데이터 연결 실패' : '서버 연결 실패';
-    if (!state.loaded) { $('#conference-rows').innerHTML = ''; $('#next-deadline').innerHTML = '<div class="next-empty">서버에 연결하면 가까운 마감일을 보여드릴게요.</div>'; }
+    if (!state.loaded) $('#conference-rows').innerHTML = '';
   } finally { loading = false; }
 }
 async function requestRefresh() {
@@ -306,7 +303,6 @@ async function requestRefresh() {
 }
 function resetFilters() { state.search = ''; state.category = 'all'; state.year = 'all'; state.status = 'all'; $('#search').value = ''; $('#year-filter').value = 'all'; $('#status-filter').value = 'all'; renderRows(); }
 document.addEventListener('click', event => {
-  const selected = event.target.closest('[data-select]'); if (selected) { selectConference(selected.dataset.select); return; }
   const detail = event.target.closest('[data-detail]'); if (detail) { showDetail(detail.dataset.detail); return; }
   const save = event.target.closest('[data-save]'); if (save) { toggleSaved(save.dataset.save); return; }
   const category = event.target.closest('[data-category]'); if (category) { state.category = category.dataset.category; renderRows(); return; }
@@ -338,9 +334,8 @@ $('#calendar-prev').addEventListener('click', () => { const d = new Date(state.c
 $('#calendar-next').addEventListener('click', () => { const d = new Date(state.calendarYear, state.month + 1); state.calendarYear = d.getFullYear(); state.month = d.getMonth(); renderRows(); });
 $('#calendar-today').addEventListener('click', () => { const p = parts(new Date().toISOString()); state.calendarYear = Number(p.year); state.month = Number(p.month) - 1; renderRows(); });
 document.addEventListener('keydown', event => { if (event.key === '/' && !['INPUT', 'SELECT', 'TEXTAREA'].includes(document.activeElement.tagName) && !$('#detail-dialog').open) { event.preventDefault(); $('#search').focus(); } });
-window.addEventListener('storage', event => { if (event.key === 'papertrail-selected') { state.selectedId = storage.get('papertrail-selected', null); renderNext(); renderRows(); } if (event.key === 'papertrail-saved') { const saved = storage.get('papertrail-saved', []); state.saved = new Set(Array.isArray(saved) ? saved : []); renderStats(); renderRows(); } });
+window.addEventListener('storage', event => { if (event.key === 'papertrail-saved') { const saved = storage.get('papertrail-saved', []); state.saved = new Set(Array.isArray(saved) ? saved : []); renderStats(); renderRows(); } });
 document.addEventListener('visibilitychange', () => { if (!document.hidden) fetchData(); });
 renderStats();
 fetchData();
 setInterval(() => { if (!document.hidden) fetchData(); }, 60000);
-setInterval(() => { if (!document.hidden) tickCountdown(); }, 1000);

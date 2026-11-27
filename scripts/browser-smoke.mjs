@@ -85,40 +85,25 @@ try {
   check('Acceptance rate column follows event dates', await evaluate("document.querySelectorAll('thead th')[4].textContent"), '과거 Acceptance Rate');
   check('Every conference row has six columns', await evaluate("[...document.querySelectorAll('#conference-rows tr')].every(row => row.cells.length === 6)"));
   check('Published rates have source links and historical year', await evaluate("[...document.querySelectorAll('.acceptance-cell .acceptance-rate')].every(link => link.href.startsWith('https://') && /20\\d{2}/.test(link.parentElement.textContent)) && document.querySelectorAll('.acceptance-cell .acceptance-rate').length > 0"));
-  check('Every pending conference shows a sourced prior deadline', await evaluate("[...document.querySelectorAll('#conference-rows tr')].filter(row => row.querySelector('.pending-text')?.textContent.includes('확인 대기')).every(row => /^이전 20\\d{2} 회차 마감/.test(row.querySelector('.previous-deadline')?.textContent || '') && row.querySelector('.previous-deadline')?.href.startsWith('https://'))"));
-  check('Every venue shows a result or decision announcement line', await evaluate("document.querySelectorAll('#conference-rows .notification-row').length === 19"));
-  check('Known announcement dates link to official sources', await evaluate("[...document.querySelectorAll('#conference-rows .notification-row:not(.static)')].every(row => row.href.startsWith('https://'))"));
-  check('Historical announcement dates are explicitly labeled as prior editions', await evaluate("[...document.querySelectorAll('#conference-rows .notification-row.previous')].every(row => /이전 20\\d{2} 회차 발표/.test(row.textContent))"));
+  const pendingIds = initial.conferences.filter(c => c.type !== 'journal' && !c.deadline).map(c => c.id);
+  check('Every pending conference shows a sourced prior deadline', await evaluate(`(${JSON.stringify(pendingIds)}).every(id => { const row = document.querySelector('[data-venue-id="' + id + '"]').closest('tr'); const prior = [...row.querySelectorAll('.milestone-row.previous')].find(item => item.textContent.includes('previous submission')); return prior?.href.startsWith('https://'); })`));
+  check('Every venue shows submission and notification milestones', await evaluate("[...document.querySelectorAll('#conference-rows tr')].every(row => { const labels = [...row.querySelectorAll('.milestone-label')].map(el => el.textContent); return labels.includes('submission deadline') && labels.some(label => label.includes('notification')); })"));
+  check('Known milestone dates link to official sources', await evaluate("[...document.querySelectorAll('#conference-rows .milestone-row[href]')].every(row => row.href.startsWith('https://'))"));
+  check('Historical milestones are explicitly labeled as prior editions', await evaluate("[...document.querySelectorAll('#conference-rows .milestone-row.previous')].every(row => /previous (submission|notification) \\(20\\d{2}\\)/.test(row.textContent))"));
   check('Full conference names wrap without ellipsis', await evaluate("[...document.querySelectorAll('.venue-name')].every(name => getComputedStyle(name).whiteSpace === 'normal' && getComputedStyle(name).textOverflow === 'clip')"));
   check('English robotics heading', await evaluate("document.querySelector('h1').textContent === 'Robotics Conferences & Journals'"));
   check('Intro subtitle and top breadcrumb removed', await evaluate("document.querySelector('.intro p') === null && document.querySelector('.breadcrumb') === null"));
   check('Desktop has no page overflow', await evaluate('document.documentElement.scrollWidth <= innerWidth'));
-  check('No automatic nearest-conference selection', await evaluate("document.querySelector('#next-deadline').textContent.includes('학회를 선택하세요')"));
-  await click('[data-select="cvpr-2027"]');
-  check('Chosen conference drives submission countdown', await evaluate("document.querySelector('.next-title').textContent.includes('CVPR') && document.querySelector('.next-title').textContent.includes('Submission Deadline')"));
-  check('Exactly one conference has selection underline', await evaluate("document.querySelectorAll('.countdown-selected').length === 1 && document.querySelector('.countdown-selected').dataset.select === 'cvpr-2027'"));
-  await cdp('Page.reload'); await loaded();
-  check('Countdown selection survives reload', await evaluate("document.querySelector('.next-title').textContent.includes('CVPR') && document.querySelector('.countdown-selected').dataset.select === 'cvpr-2027'"));
-  await click('[data-select="cvpr-2027"]');
-  check('Clicking selected venue again clears selection', await evaluate("document.querySelectorAll('.countdown-selected').length === 0 && document.querySelector('#next-deadline').textContent.includes('학회를 선택하세요')"));
-  await cdp('Page.reload'); await loaded();
-  check('Cleared selection survives reload', await evaluate("document.querySelectorAll('[data-select][aria-pressed=\"true\"]').length === 0 && JSON.parse(localStorage.getItem('papertrail-selected')) === null"));
+  check('Selected-conference countdown banner removed', await evaluate("document.querySelector('#next-deadline') === null && document.querySelector('.countdown') === null"));
+  check('Every conference name opens an official HTTPS homepage', await evaluate("document.querySelectorAll('[data-venue-id]').length === 19 && document.querySelectorAll('.venue-name[href]').length === 19 && [...document.querySelectorAll('[data-venue-id], .venue-name[href]')].every(link => link.href.startsWith('https://') && link.target === '_blank')"));
+  check('Unannounced editions link to the previous official edition', await evaluate("document.querySelector('[data-venue-id=\"cvpr-2028\"]').href.includes('/Conferences/2027') && document.querySelector('[data-venue-id=\"aaai-2028\"]').href.includes('/aaai-27/')"));
+  check('ICML milestone lines show exact KST times without inventing notification time', await evaluate("(() => { const text = document.querySelector('[data-venue-id=\"icml-2027\"]').closest('tr').cells[2].innerText; return text.includes('abstract') && text.includes('2027.01.15') && text.includes('(20:59 KST)') && text.includes('submission deadline') && text.includes('2027.01.23') && text.includes('notification') && text.includes('2027.05.03') && text.includes('(시각 미발표)'); })()"));
   check('Summary cards removed', await evaluate("document.querySelector('.stats-grid') === null"));
-  await click('[data-select="neurips-2027"]');
-  check('Unannounced selection stays selected', await evaluate("document.querySelector('.next-title').textContent.includes('NeurIPS') && document.querySelector('#countdown').textContent.includes('일정 미정')"));
-  await click('[data-select="ra-l"]');
-  check('Rolling journal selection has no invented countdown', await evaluate("document.querySelector('#countdown').textContent.includes('상시 투고')"));
-  await click('[data-select="icra-2028"]');
-  check('Date-only countdown uses one D-day label', await evaluate("/^D-\\d+$/.test(document.querySelector('#countdown').textContent.trim()) && !document.querySelector('#countdown').textContent.includes('DAYS')"));
-  await click('[data-select="aaai-2028"]');
-  check('Next edition waits for its own official deadline', await evaluate("document.querySelector('.next-title').textContent.includes('AAAI') && document.querySelector('#countdown').textContent.includes('일정 미정')"));
-  await evaluate("localStorage.setItem('papertrail-selected', JSON.stringify('iclr-2027')); localStorage.setItem('papertrail-saved', JSON.stringify(['iclr-2027']))");
+  await evaluate("localStorage.setItem('papertrail-saved', JSON.stringify(['iclr-2027']))");
   await cdp('Page.reload'); await loaded();
-  check('Selection migrates to new edition', await evaluate("JSON.parse(localStorage.getItem('papertrail-selected')) === 'iclr-2028' && document.querySelector('.countdown-selected').dataset.select === 'iclr-2028'"));
   check('Bookmark migrates to new edition', await evaluate("JSON.parse(localStorage.getItem('papertrail-saved')).includes('iclr-2028') && !JSON.parse(localStorage.getItem('papertrail-saved')).includes('iclr-2027')"));
   await evaluate("localStorage.setItem('papertrail-saved', '[]')");
   await cdp('Page.reload'); await loaded();
-  await click('[data-select="cvpr-2027"]');
   await screenshot('desktop.png');
 
   for (const category of ['ai', 'robotics', 'driving']) {
@@ -145,7 +130,7 @@ try {
 
   const timed = initial.conferences.find(c => c.deadline?.includes('T'));
   const dateOnly = initial.conferences.find(c => /^\d{4}-\d{2}-\d{2}$/.test(c.deadline || ''));
-  const deadlineText = c => evaluate(`document.querySelector('[data-select="${c.id}"]').closest('tr').cells[2].innerText`);
+  const deadlineText = c => evaluate(`document.querySelector('[data-venue-id="${c.id}"]').closest('tr').cells[2].innerText`);
   const dateBefore = dateOnly ? (await deadlineText(dateOnly)).split('\n')[0] : null;
   const timedBefore = timed ? await deadlineText(timed) : null;
   await select('#timezone', 'UTC');
@@ -210,7 +195,7 @@ try {
   check('Roadmap Korean heading renders', await evaluate("document.querySelector('#roadmap-title').textContent"), '논문 투고 계획');
   check('Roadmap heading omits decorative metadata', await evaluate("document.querySelector('.rm-eyebrow, #roadmap-count, .rm-scroll-hint, .rm-heading p') === null"));
   check('No separate decision or conference-presentation lanes', await evaluate("document.querySelector('.rm-talk, .rm-decision, .rm-event.rm-talk, .rm-event.rm-decision') === null"));
-  check('Acceptance result appears in small text on the deadline card', await evaluate("document.querySelector('.rm-event[data-id=\"CVPR-2027-deadline\"] .rm-notification').textContent.includes('2027.02.25')"));
+  check('Acceptance result appears in small text on the deadline card', await evaluate("document.querySelector('.rm-event[data-id=\"ICML-2027-deadline\"] .rm-notification').textContent.includes('2027.05.03')"));
   await click('#roadmap-confirmed');
   check('Confirmed-only hides all estimates', await evaluate("document.querySelectorAll('.rm-estimate').length"), 0);
   await click('#roadmap-confirmed');
